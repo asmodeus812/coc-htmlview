@@ -276,6 +276,8 @@ group of its chain that your colorscheme defines:
     HtmlViewHostQuoteBar           NonText
     HtmlViewHostListMarker         @markup.list, Special
     HtmlViewHostBorder             FloatBorder, WinSeparator, NonText
+    HtmlViewHostFaintBorder        NonText, WinSeparator
+                                   (only --vscode-editor-lineHighlightBorder)
     HtmlViewHostTableHeader        @markup.heading, Title
     HtmlViewHostMuted              Comment, NonText
     HtmlViewHostDiffAdd            DiffAdd, @diff.plus

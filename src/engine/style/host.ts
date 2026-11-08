@@ -31,6 +31,7 @@ export type HostRole =
     | "quoteBar"
     | "listMarker"
     | "border"
+    | "faintBorder"
     | "tableHeader"
     | "muted"
     | "diffAdd"
@@ -91,6 +92,8 @@ export const hostRoles: Readonly<Record<HostRole, HostRoleEntry>> = Object.freez
     listMarker: role("listMarker", ["@markup.list", "Special"]),
     /** Table rules, hr, CSS box borders (user decision: FloatBorder first, WinSeparator is too faint). */
     border: role("border", ["FloatBorder", "WinSeparator", "NonText"]),
+    /** A faint line (VS Code's `editor.lineHighlightBorder`); used only by that variable. */
+    faintBorder: role("faintBorder", ["NonText", "WinSeparator"]),
     tableHeader: role("tableHeader", ["@markup.heading", "Title"]),
     muted: role("muted", ["Comment", "NonText"]),
     diffAdd: role("diffAdd", ["DiffAdd", "@diff.plus"]),
@@ -138,7 +141,7 @@ export const defaultHostVars: HostVarTable = Object.freeze({
     "--vscode-diffEditor-removedLineBackground": v("diffDelete", "bg"),
     "--vscode-editor-background": v("canvas", "bg"),
     "--vscode-editor-foreground": v("canvas", "fg"),
-    "--vscode-editor-lineHighlightBorder": v("border", "fg"),
+    "--vscode-editor-lineHighlightBorder": v("faintBorder", "fg"),
     "--vscode-gitDecoration-stageDeletedResourceForeground": v("syntaxString", "fg"),
     "--vscode-input-background": v("badge", "bg"),
     "--vscode-input-foreground": v("badge", "fg"),
