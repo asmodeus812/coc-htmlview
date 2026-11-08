@@ -3,7 +3,7 @@
  * and ColorScheme. The only part (with highlight's treesitter half) that talks to nvim.
  *
  * Buffer: named (`opts.name`), `buftype=nofile`, `bufhidden=hide`, `swapfile` off, `nomodifiable` (made modifiable
- * only while writing), `filetype=htmlview`; window `wrap` off (layout already wrapped), `conceallevel=0`. Marks go
+ * only while writing), `filetype=htmlview`; window `wrap` off (layout already wrapped), `conceallevel=2` (Vim: 0). Marks go
  * in one namespace `htmlview` (code tokens in `htmlview-code`), columns converted with `common.cellToByte`.
  * Vim fallback: text plus `prop_add` text properties for marks; no treesitter, no line_hl (diff lines use a
  * full-line text property instead).

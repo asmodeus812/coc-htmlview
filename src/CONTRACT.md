@@ -61,7 +61,7 @@ api.render(html: string, options: {
 ## Imports
 
 Inside `src/`: `coc.nvim` (types only, and only in `view/`, `highlight/`, `index.ts`, `render.ts`), node built-ins, the
-existing dependencies (`node-html-parser`, `css`, `diff`, `highlight.js`), `import type` across parts, runtime imports
+existing dependencies (`node-html-parser`, `css`, `highlight.js`), `import type` across parts, runtime imports
 from `common/`. Never anything from the host extension (`src/` outside `htmlview`). Runtime imports across engine
 parts are limited to: style → css `parseSheet`/`matchRules`/`compareCascade` and interact `isChecked`; layout → style
 data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and counter rules (`groupName`,
@@ -115,8 +115,6 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
   with default semantics are the user's override point; stylesheet groups are redefined in full on each update) and
   redefines them on ColorScheme; converts cells to bytes; calls `refresh` for open, resize, context selection,
   ColorScheme and `background` changes; a refresh that finishes after a newer view reused the buffer applies nothing.
-- Context keys: the adapters add `data-context-key` on `input.contextualTab` and `label.contextLabel`, and
-  `data-default-context-key` on `section.contextualTabContainer`.
 
 ## Known limitations
 
