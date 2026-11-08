@@ -66,8 +66,8 @@ name replaces the content of the earlier buffer and jumps to its window if
 one shows it. Without reuse, each view gets a new buffer; a name that is
 already taken gets a numbered suffix such as `myext://hello [2]`.
 
-Closing a reused view hides its windows and keeps the buffer; closing any
-other view wipes its buffer.
+Closing a reused view (with `q` or `close()`) hides its windows and keeps the
+buffer; closing any other view that way wipes its buffer.
 
 REFRESH
 
@@ -319,8 +319,9 @@ autocommand: >vim
 
     autocmd ColorScheme * hi HtmlViewHostLink guifg=#5fafff
 <
-Open views pick the new colours up on the next |:colorscheme| or
-'background' change.
+Colours are read from the groups when a view refreshes, so an open view
+picks up a `:hi` change on its next refresh: |:colorscheme|, 'background',
+a window resize or a tab switch.
 
 ==============================================================================
 9. Code highlighting                                       *coc-htmlview-code*
@@ -333,8 +334,10 @@ Code blocks (`pre`) are highlighted:
    rules of the stylesheets; the user-agent sheet colours numbers,
    operators, punctuation, parameters, properties and regular expressions.
 
-A block's language comes from a `language-NAME` or `lang-NAME` class, else
-from the `lang` option of the calling extension. A block with no language is
+A block's language comes from a `data-lang`, `data-language` or `lang`
+attribute, else from a `language-NAME` or `lang-NAME` class, on the `pre` or
+on an element inside it (typically `code`), else from the `lang` option of
+the calling extension. A block with no language is
 not highlighted.
 
 LANGUAGE TABLE                                        *coc-htmlview-languages*
@@ -447,7 +450,8 @@ stylesheet to get colours other than the few the user-agent sheet sets.
 
 A stylesheet has no effect ~
 An unreadable path is skipped with the message
-`htmlview: cannot read stylesheet '…', skipped` in coc's log. Use absolute
-paths in `render()`.
+`htmlview: cannot read stylesheet '…', skipped`, written to the error output
+of coc's extension host (no notification is shown). Relative paths in
+`render()` resolve against Neovim's working directory, so use absolute paths.
 
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
