@@ -83,7 +83,7 @@ API, with every option, is in `:help coc-htmlview-api`.
 
 | Setting | Type | Default | Effect |
 |---|---|---|---|
-| `htmlview.view.mode` | `"split"` \| `"float"` | `"split"` | Where views open when the calling extension does not choose: a window split or a centred float (Neovim only; Vim always splits). |
+| `htmlview.view.mode` | `"float"` \| `"split"` | `"float"` | Where views open when the calling extension does not choose: a centred float (Neovim only; Vim always splits) or a window split. |
 | `htmlview.view.splitCommand` | string | `"botright vsplit"` | Ex command that creates the split, e.g. `topleft split`, `tab split`. A value that is not a split command falls back to the default with one warning. |
 | `htmlview.stylesheets` | string[] | `[]` | Extra CSS files applied to every view after the calling extension's stylesheets, so their rules win. `~` and environment variables are expanded; relative paths resolve against the workspace root. |
 

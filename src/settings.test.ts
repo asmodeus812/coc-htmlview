@@ -34,7 +34,7 @@ function fakeCoc(values: Record<string, unknown>, warnings: string[]): typeof Co
 }
 
 test("readSettings returns the defaults for an empty configuration", () => {
-    assert.deepEqual(readSettings(fakeCoc({}, [])), { mode: "split", splitCommand: DEFAULT_SPLIT_COMMAND, stylesheets: [] });
+    assert.deepEqual(readSettings(fakeCoc({}, [])), { mode: "float", splitCommand: DEFAULT_SPLIT_COMMAND, stylesheets: [] });
 });
 
 test("readSettings expands and resolves stylesheets, dropping empty and non-string entries", () => {
@@ -46,7 +46,7 @@ test("readSettings expands and resolves stylesheets, dropping empty and non-stri
 test("readSettings falls back from a bad split command with one warning", () => {
     const warnings: string[] = [];
     const coc = fakeCoc({ "view.splitCommand": "edit foo", "view.mode": "bogus" }, warnings);
-    assert.deepEqual(readSettings(coc), { mode: "split", splitCommand: DEFAULT_SPLIT_COMMAND, stylesheets: [] });
+    assert.deepEqual(readSettings(coc), { mode: "float", splitCommand: DEFAULT_SPLIT_COMMAND, stylesheets: [] });
     readSettings(coc);
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /'edit foo' is not a split command/);

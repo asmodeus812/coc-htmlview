@@ -54,11 +54,12 @@ width.
 
 SPLIT AND FLOAT
 
-A view opens in a split, made with the configured split command (default
-`botright vsplit`), or in a centred floating window with a rounded border and
-the view's title, 80% of the editor's width and height. The calling extension
-may choose; otherwise your `htmlview.view.mode` setting decides. A split shows
-the view's title in its status line.
+A view opens in a centred floating window with a rounded border and the
+view's title, 80% of the editor's width and height (the default), or in a
+split, made with the configured split command (default `botright vsplit`).
+The calling extension may choose; otherwise your `htmlview.view.mode` setting
+decides. A split shows the view's title in its status line. Vim always
+splits.
 
 BUFFER NAMES AND REUSE
 

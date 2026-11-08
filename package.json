@@ -47,7 +47,7 @@
             "split",
             "float"
           ],
-          "default": "split",
+          "default": "float",
           "scope": "application",
           "markdownDescription": "Where views open when the calling extension does not choose: a window `split` (see `#htmlview.view.splitCommand#`) or a centred `float` (Neovim only; Vim always splits)."
         },

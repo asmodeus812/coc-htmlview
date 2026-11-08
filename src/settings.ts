@@ -47,7 +47,7 @@ let warned = false;
 /** Reads `htmlview.view.mode`, `htmlview.view.splitCommand` and `htmlview.stylesheets` (expanded, absolute). */
 export function readSettings(coc: typeof Coc): Settings {
     const config = coc.workspace.getConfiguration("htmlview");
-    const rawMode: string = config.get<string>("view.mode", "split");
+    const rawMode: string = config.get<string>("view.mode", "float");
     const rawSplit: string = config.get<string>("view.splitCommand", DEFAULT_SPLIT_COMMAND);
     const rawSheets: unknown = config.get<unknown>("stylesheets", []);
     let splitCommand: string = rawSplit;
@@ -61,5 +61,5 @@ export function readSettings(coc: typeof Coc): Settings {
     const sheets: string[] = (Array.isArray(rawSheets) ? rawSheets : [])
         .filter((f: unknown): f is string => typeof f === "string" && f !== "")
         .map((f: string): string => resolveSheetPath(coc.workspace.expand(f), coc.workspace.root));
-    return { mode: rawMode === "float" ? "float" : "split", splitCommand, stylesheets: sheets };
+    return { mode: rawMode === "split" ? "split" : "float", splitCommand, stylesheets: sheets };
 }
