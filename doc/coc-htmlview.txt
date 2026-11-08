@@ -1,5 +1,453 @@
-*coc-htmlview.txt*  Browser-style HTML and CSS rendering for coc.nvim extensions
+*coc-htmlview.txt*  Browser-style HTML and CSS rendering for coc.nvim
 
-Documentation pending.
+                            COC-HTMLVIEW MANUAL
 
- vim:tw=78:ft=help:norl:
+                                       Type |gO| to see the table of contents.
+
+==============================================================================
+CONTENTS                                               *coc-htmlview-contents*
+
+    1. Introduction ................................ |coc-htmlview-intro|
+    2. Installation ................................ |coc-htmlview-install|
+    3. Views ....................................... |coc-htmlview-views|
+    4. Keys ........................................ |coc-htmlview-keys|
+    5. API for extension authors ................... |coc-htmlview-api|
+    6. Stylesheets and the cascade ................. |coc-htmlview-css|
+    7. VS Code webview compatibility ............... |coc-htmlview-vscode|
+    8. Highlight groups ......................... |coc-htmlview-highlights|
+    9. Code highlighting ........................... |coc-htmlview-code|
+    10. Tabs and contexts .......................... |coc-htmlview-tabs|
+    11. Vim ........................................ |coc-htmlview-vim|
+    12. Known limitations .......................... |coc-htmlview-limits|
+    13. Troubleshooting ............................ |coc-htmlview-trouble|
+
+==============================================================================
+1. Introduction                                           *coc-htmlview-intro*
+
+coc-htmlview renders HTML with CSS into a read-only buffer, the way a browser
+would lay it out on a character grid. Other coc extensions pass it an HTML
+string and stylesheet paths; it applies the cascade, lays the document out for
+the window width and colours it from your colorscheme.
+
+coc-htmlview has no commands. You meet it through the views of the
+extensions that use it.
+
+==============================================================================
+2. Installation                                         *coc-htmlview-install*
+
+Requires Neovim 0.10 or newer and coc.nvim. Vim works with a reduced view,
+see |coc-htmlview-vim|. Install with: >vim
+
+    :CocInstall coc-htmlview
+<
+Settings and installing from git are in the README.
+
+==============================================================================
+3. Views                                                  *coc-htmlview-views*
+
+A view is a window with a scratch buffer that holds the rendered document.
+The buffer has 'filetype' `htmlview`, 'buftype' `nofile` and is not
+modifiable. Line wrapping is off: the text is already wrapped to the window
+width.
+
+SPLIT AND FLOAT
+
+A view opens in a split, made with the configured split command (default
+`botright vsplit`), or in a centred floating window with a rounded border and
+the view's title, 80% of the editor's width and height. The calling extension
+may choose; otherwise your `htmlview.view.mode` setting decides. A split shows
+the view's title in its status line.
+
+BUFFER NAMES AND REUSE
+
+Each view has a buffer name chosen by the calling extension, for example
+`myext://hello`. When the extension asks for reuse, a new view with the same
+name replaces the content of the earlier buffer and jumps to its window if
+one shows it. Without reuse, each view gets a new buffer; a name that is
+already taken gets a numbered suffix such as `myext://hello [2]`.
+
+Closing a reused view hides its windows and keeps the buffer; closing any
+other view wipes its buffer.
+
+REFRESH
+
+The view lays itself out again when its window width changes, and restyles
+when you run |:colorscheme| or change 'background'. The cursor stays on its
+line. Link targets appear after each link as virtual text, ` 🔗 ` followed by
+the URL.
+
+==============================================================================
+4. Keys                                                    *coc-htmlview-keys*
+
+Every view maps these keys in Normal mode, local to its buffer:
+
+`q`             Close the view.
+`<CR>`          Follow the link under the cursor: a URL opens with the system
+                opener, a `#id` link jumps to that element, a tab or context
+                label selects it (see |coc-htmlview-tabs|).
+`gx`            Open the URL under the cursor with the system opener. Does
+                nothing on other links.
+`<Tab>`         Move to the start of the next link.
+`<S-Tab>`       Move to the start of the previous link.
+`]]`            Move to the next heading.
+`[[`            Move to the previous heading.
+`]c`            Select the next label of the tab or context bar at or above
+                the cursor; wraps around.
+`[c`            Select the previous label of that bar; wraps around.
+
+Link and heading moves stop at the first and last one; they do not wrap.
+
+==============================================================================
+5. API for extension authors                                *coc-htmlview-api*
+
+OBTAINING THE API                                       *coc-htmlview-api-get*
+
+coc-htmlview activates on startup and exports one object, `HtmlViewApi`.
+Look it up through coc and check its version: >ts
+
+    import { extensions } from "coc.nvim";
+
+    const ext = extensions.getExtensionById("coc-htmlview");
+    const api = ext?.exports as HtmlViewApi | undefined;
+    if (api !== undefined && api.version === 1) {
+        // use api.render
+    }
+<
+`version` is `1` and changes only on a breaking change of the API. The types
+are in `lib/api.d.ts` of the package; copy them into your extension instead
+of importing the package. When coc-htmlview is missing or the version does
+not match, fall back to your own plain rendering.
+
+RENDER                                               *coc-htmlview-api-render*
+
+`api.render({html}, {options})` renders {html} into a view and resolves with
+the |coc-htmlview-api-view| once the view shows the first content.
+
+{options} fields:
+
+`view`          Required. Where and under which name the view opens:
+                • `name`: buffer name and reuse key.
+                • `mode`?: `"split"` or `"float"`. Default: the user's
+                  `htmlview.view.mode`.
+                • `splitCommand`?: Ex command that creates the split.
+                  Default: the user's `htmlview.view.splitCommand`.
+                • `reuse`?: reuse the buffer and window of an earlier view
+                  with the same name. Default `false`.
+                • `title`?: title of the float and of the split's status
+                  line. Default: `name`.
+`stylesheets`?  CSS file paths in cascade order. Use absolute paths. The
+                user's `htmlview.stylesheets` come after them. An unreadable
+                path is skipped. Files are re-read when they change.
+`prepass`?      A function from HTML string to HTML string, run before the
+                document is parsed. Use it to fix up markup.
+`lang`?         Language of code blocks that name none, see
+                |coc-htmlview-code|.
+`languages`?    Additions to the language table, see
+                |coc-htmlview-languages|.
+
+Plain HTML: >ts
+
+    await api.render("<h1>Title</h1><p>Some <em>text</em>.</p>", {
+        view: { name: "myext://plain" }
+    });
+<
+With stylesheets, reused, in a float: >ts
+
+    await api.render(html, {
+        stylesheets: ["/path/to/base.css", "/path/to/theme.css"],
+        view: { name: "myext://doc", mode: "float", reuse: true,
+                title: "Documentation" }
+    });
+<
+With a prepass: >ts
+
+    await api.render(html, {
+        prepass: (h) => h.replace(/<wbr>/g, ""),
+        view: { name: "myext://fixed" }
+    });
+<
+With a default language and an extra alias: >ts
+
+    await api.render(html, {
+        lang: "java",
+        languages: { jsp: "html", mylang: { treesitter: "c", hljs: "c" } },
+        view: { name: "myext://code" }
+    });
+<
+THE VIEW                                               *coc-htmlview-api-view*
+
+`render()` resolves with a `View`:
+
+`bufnr`         The buffer number.
+`winid`         The window id, or -1 when the buffer is not shown.
+`refresh(`{reason}?`)`  Renders again, keeping the cursor line. {reason} is
+                one of `"open"`, `"resize"`, `"context"` (default) or
+                `"colorscheme"`.
+`close()`       Closes the view. Calling it again does nothing.
+`closed`        A promise that resolves when the view closes, by `close()`,
+                by `q` or when the buffer is wiped.
+
+==============================================================================
+6. Stylesheets and the cascade                              *coc-htmlview-css*
+
+Rules apply in this order, later ones winning at equal specificity:
+
+1. The built-in user-agent sheet: browser defaults adapted to a terminal.
+2. The `stylesheets` given to `render()`, in order.
+3. The user's `htmlview.stylesheets`, in order.
+4. The document's `<style>` blocks.
+5. `style=""` attributes.
+
+`!important` reverses the order as in a browser.
+
+The user-agent sheet turns font sizes into colours and markers: headings get
+a colour and a marker (`◉`, `◆`, `▸`, `▹`, `‣`, `•` for `h1` to `h6`), tables
+and cells get borders, `pre` a code background, block quotes a bar, `hr` a
+horizontal rule, `mark` the search colour. List indents are 3 cells.
+
+SUPPORTED CSS
+
+• Selectors: type, class, id, universal, attribute (all operators and the
+  `i` flag), descendant, child and sibling combinators, `:root`, `:checked`,
+  `:not()`, `:first-child`, `:last-child`, `:only-child`, the `-of-type`
+  forms, `:nth-child()` and its relatives, `::before`, `::after`, `::marker`.
+  Other pseudo-classes such as `:hover` never match.
+• Properties: `color`, `background-color`, `display`, `visibility`, margins,
+  paddings, borders (width, style, colour), `font-weight`, `font-style`,
+  `text-decoration`, `white-space`, `tab-size`, `text-align`,
+  `text-transform`, `list-style`, `content`, counters, `flex-direction`,
+  `order`, `width`, and the shorthands `margin`, `padding`, `border`,
+  `background`, `font`, `list-style`, `text-decoration`. Unknown properties
+  are ignored.
+• `var()` with fallbacks; colours as hex, `rgb()`, `hsl()`, names and
+  `transparent`. Colours with alpha are blended over the background.
+• `@media` blocks apply when their query is `screen` or `all`; other
+  at-rules are skipped.
+
+Lengths become cells and lines: `1ch` is one cell, `1em` one cell across and
+one line down, pixels count 8 per cell across and 16 per line down.
+
+`tab-size` sets the width of a tab in code. Without it, tabs use your
+'tabstop'.
+
+==============================================================================
+7. VS Code webview compatibility                         *coc-htmlview-vscode*
+
+Pages written for VS Code webviews render without changes:
+
+• `<body>` gets the class `vscode-light` or `vscode-dark`, from 'background'.
+• `--vscode-*` colour variables such as `--vscode-textLink-foreground` or
+  `--vscode-editor-foreground` resolve to highlight groups, see
+  |coc-htmlview-highlights|.
+
+==============================================================================
+8. Highlight groups                                  *coc-htmlview-highlights*
+
+ROLE GROUPS                                     *coc-htmlview-highlight-roles*
+
+Every theme colour comes from a role group. Each one links to the first
+group of its chain that your colorscheme defines:
+
+    Group                          Default link chain ~
+    HtmlViewHostCanvas             Normal
+    HtmlViewHostCodeBlock          ColorColumn, CursorLine
+    HtmlViewHostInlineCode         @markup.raw, Special, String
+    HtmlViewHostKbd                @markup.raw, Special
+    HtmlViewHostHeading1 to 6      @markup.heading.1 (to .6),
+                                   @markup.heading, Title
+    HtmlViewHostLink               @markup.link, Underlined
+    HtmlViewHostLinkUrl            @markup.link.url, Underlined, Directory
+    HtmlViewHostStrong             @markup.strong
+    HtmlViewHostItalic             @markup.italic
+    HtmlViewHostUnderline          @markup.underline
+    HtmlViewHostStrikethrough      @markup.strikethrough
+    HtmlViewHostMark               Search
+    HtmlViewHostQuote              @markup.quote, Comment
+    HtmlViewHostQuoteBar           NonText
+    HtmlViewHostListMarker         @markup.list, Special
+    HtmlViewHostBorder             FloatBorder, WinSeparator, NonText
+    HtmlViewHostTableHeader        @markup.heading, Title
+    HtmlViewHostMuted              Comment, NonText
+    HtmlViewHostDiffAdd            DiffAdd, @diff.plus
+    HtmlViewHostDiffDelete         DiffDelete, @diff.minus
+    HtmlViewHostPassed             DiagnosticOk
+    HtmlViewHostFailed             DiagnosticError
+    HtmlViewHostWarn               DiagnosticWarn
+    HtmlViewHostInfo               DiagnosticInfo
+    HtmlViewHostButton             PmenuSel
+    HtmlViewHostBadge              Pmenu
+    HtmlViewHostSyntaxNumber       @number, Number
+    HtmlViewHostSyntaxString       @string, String
+    HtmlViewHostSyntaxOperator     @operator, Operator
+    HtmlViewHostSyntaxPunctuation  @punctuation.delimiter, Delimiter
+    HtmlViewHostSyntaxVariable     @variable, Identifier
+    HtmlViewHostSyntaxKeyword      @keyword, Keyword
+    HtmlViewHostSyntaxConstant     @constant, Constant
+    HtmlViewHostSyntaxPreProc      @keyword.directive, PreProc
+    HtmlViewHostSyntaxSpecialComment  @comment.documentation,
+                                   SpecialComment
+    HtmlViewHostLinkCursor         CursorLine, Visual
+    HtmlViewHostFloatBorder        FloatBorder
+    HtmlViewHostFloatTitle         FloatTitle
+    HtmlViewHostFolded             Folded
+
+The link URL shown after a link uses `HtmlViewHostLinkUrl`.
+
+VARIABLE GROUPS
+
+Each colour variable has a group named from the variable, linked to its role
+group: `--vscode-textLink-foreground` becomes
+`HtmlViewVscodeTextLinkForeground`, linked to `HtmlViewHostLinkUrl`.
+
+RULE GROUPS
+
+Each stylesheet rule that sets a colour, weight, style or decoration gets a
+group named from its selector: `.hljs-keyword` becomes `HtmlViewHljsKeyword`,
+`h1` becomes `HtmlViewH1`. A `style=""` attribute gets
+`HtmlViewInline<hash>`. These are defined again on every refresh from the
+stylesheets, so change them in CSS, not with `:hi`.
+
+OVERRIDING
+
+Role and variable groups are default links: a group you define wins. Change
+a role to restyle every view: >vim
+
+    hi HtmlViewHostLink guifg=#5fafff gui=underline
+<
+|:colorscheme| clears your groups, so set overrides in a |ColorScheme|
+autocommand: >vim
+
+    autocmd ColorScheme * hi HtmlViewHostLink guifg=#5fafff
+<
+Open views pick the new colours up on the next |:colorscheme| or
+'background' change.
+
+==============================================================================
+9. Code highlighting                                       *coc-htmlview-code*
+
+Code blocks (`pre`) are highlighted:
+
+1. with treesitter, when the parser for the block's language is installed
+   (Neovim only);
+2. otherwise with highlight.js. Its tokens are coloured only by `.hljs-*`
+   rules of the stylesheets; the user-agent sheet colours numbers,
+   operators, punctuation, parameters, properties and regular expressions.
+
+A block's language comes from a `language-NAME` or `lang-NAME` class, else
+from the `lang` option of the calling extension. A block with no language is
+not highlighted.
+
+LANGUAGE TABLE                                        *coc-htmlview-languages*
+
+Names are case-insensitive. A name not in the table is tried as is for both
+engines. The table, as `name: treesitter parser / highlight.js name`:
+
+    javascript js jsx mjs cjs   javascript / javascript
+    typescript ts               typescript / typescript
+    tsx                         tsx / typescript
+    python py                   python / python
+    java                        java / java
+    kotlin kt                   kotlin / kotlin
+    csharp cs c#                c_sharp / csharp
+    c                           c / c
+    cpp c++ cc h hpp            cpp / cpp
+    objectivec objc             objc / objectivec
+    go golang                   go / go
+    rust rs                     rust / rust
+    ruby rb                     ruby / ruby
+    php scala swift dart        same name for both
+    shell sh bash zsh           bash / bash
+    powershell ps1              powershell / powershell
+    sql                         sql / sql
+    html htm                    html / xml
+    xml svg                     xml / xml
+    css                         css / css
+    scss                        scss / scss
+    less                        css / less
+    json jsonc                  json / json
+    yaml yml                    yaml / yaml
+    toml                        toml / ini
+    ini                         ini / ini
+    dockerfile docker           dockerfile / dockerfile
+    hcl terraform tf            hcl / none
+    lua                         lua / lua
+    vim viml                    vim / vim
+    markdown md                 markdown / markdown
+    diff patch                  diff / diff
+    makefile make               make / makefile
+    graphql                     graphql / graphql
+    proto protobuf              proto / protobuf
+    r perl                      same name for both
+    haskell hs                  haskell / haskell
+    elixir ex                   elixir / elixir
+    erlang                      erlang / erlang
+    clojure clj                 clojure / clojure
+    groovy gradle               groovy / groovy
+    actionscript                none / actionscript
+    vb vbnet                    vb / vbnet
+    cobol                       cobol / none
+    bicep                       bicep / none
+
+The `languages` option extends it per view: a string value is an alias to
+another name (`""` turns highlighting off for that name), an object gives the
+engine names directly, for example `{ treesitter: "c", hljs: "c" }`.
+
+==============================================================================
+10. Tabs and contexts                                      *coc-htmlview-tabs*
+
+Pages that build tabs from radio buttons and `:checked ~ …` rules work as
+tabs. The radio inputs themselves are hidden; each `label for="…"` of a radio
+or checkbox becomes a link. `<CR>` on a label checks its radio (or toggles
+its checkbox) and the view restyles, so the `:checked` rules show the chosen
+section. `]c` and `[c` step through the labels of the bar at or above the
+cursor. The initial tab is the one with the `checked` attribute.
+
+==============================================================================
+11. Vim                                                     *coc-htmlview-vim*
+
+In Vim a view:
+
+• always opens in a split;
+• shows link targets and other decorations as buffer text;
+• has no treesitter highlighting, only highlight.js;
+• does not lay out again on resize or restyle on a colorscheme change.
+
+The keys are the same.
+
+==============================================================================
+12. Known limitations                                    *coc-htmlview-limits*
+
+• `::before`/`::after` content on a block is not rewrapped with the block's
+  text.
+• Backgrounds of non-code elements cover their text, not the full box.
+• `rowspan` is ignored in tables.
+• Flex is row only: `flex-wrap`, `gap` and `inline-flex` are not computed,
+  so `nowrap` wraps too.
+• No fonts or font sizes; a weight of 600 or more is bold.
+• Form controls other than radio and checkbox are not shown; images show
+  their `alt` text.
+
+==============================================================================
+13. Troubleshooting                                     *coc-htmlview-trouble*
+
+Nothing renders ~
+Check that coc-htmlview is installed and active with `:CocList extensions`.
+A document that cannot be rendered shows one line starting with
+`htmlview: cannot render:` and the reason.
+
+Colours are plain ~
+Highlighting of rules uses true colour: set 'termguicolors'. Role groups
+link to treesitter groups such as `@markup.link`; a colorscheme without them
+falls back down the chain (|coc-htmlview-highlight-roles|).
+
+Code is not highlighted ~
+Install the treesitter parser for the language, or give the block a
+`language-NAME` class. highlight.js tokens need `.hljs-*` rules in a
+stylesheet to get colours other than the few the user-agent sheet sets.
+
+A stylesheet has no effect ~
+An unreadable path is skipped with the message
+`htmlview: cannot read stylesheet '…', skipped` in coc's log. Use absolute
+paths in `render()`.
+
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
