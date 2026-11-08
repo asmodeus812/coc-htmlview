@@ -35,7 +35,9 @@ extensions that use it.
 ==============================================================================
 2. Installation                                         *coc-htmlview-install*
 
-Requires Neovim 0.10 or newer and coc.nvim. Vim works with a reduced view,
+Requires Neovim 0.10 or newer and coc.nvim. Neovim 0.9 is the floor: it has
+no inline virtual text, so link targets appear at the end of the line and
+other inline decorations overlay the text. Vim works with a reduced view,
 see |coc-htmlview-vim|. Install with: >vim
 
     :CocInstall coc-htmlview
@@ -212,12 +214,19 @@ SUPPORTED CSS
   `:not()`, `:first-child`, `:last-child`, `:only-child`, the `-of-type`
   forms, `:nth-child()` and its relatives, `::before`, `::after`, `::marker`.
   Other pseudo-classes such as `:hover` never match.
-• Properties: `color`, `background-color`, `display`, `visibility`, margins,
-  paddings, borders (width, style, colour), `font-weight`, `font-style`,
-  `text-decoration`, `white-space`, `tab-size`, `text-align`,
-  `text-transform`, `list-style`, `content`, counters, `flex-direction`,
-  `order`, `width`, and the shorthands `margin`, `padding`, `border`,
-  `background`, `font`, `list-style`, `text-decoration`. Unknown properties
+• Properties: `color`, `background-color`, `display`, `visibility`, the
+  four `margin-*` and `padding-*`, `border-*-width`, `border-*-style`,
+  `border-*-color`, `font-weight`, `font-style`, `text-decoration-line`,
+  `text-decoration-color`, `white-space`, `tab-size`, `text-align`,
+  `text-transform`, `list-style-type`, `list-style-position`, `content`,
+  `counter-reset`, `counter-increment`, `counter-set`, `flex-direction`,
+  `order` and `width`. Shorthands: `margin`, `padding`, `border`,
+  `border-width`, `border-style`, `border-color`, `border-top` (and
+  `-right`, `-bottom`, `-left`), `margin-block`, `margin-inline`,
+  `padding-block`, `padding-inline`, `background` (sets the colour only),
+  `font` (sets weight and style only), `list-style`, `text-decoration` and
+  `flex-flow`; the logical `-block-start` and `-inline-end` style names of
+  margin, padding and border map to their physical sides. Unknown properties
   are ignored.
 • `var()` with fallbacks; colours as hex, `rgb()`, `hsl()`, names and
   `transparent`. Colours with alpha are blended over the background.
@@ -403,7 +412,9 @@ tabs. The radio inputs themselves are hidden; each `label for="…"` of a radio
 or checkbox becomes a link. `<CR>` on a label checks its radio (or toggles
 its checkbox) and the view restyles, so the `:checked` rules show the chosen
 section. `]c` and `[c` step through the labels of the bar at or above the
-cursor. The initial tab is the one with the `checked` attribute.
+cursor. The initial tab is the one with the `checked` attribute. Only a label
+with a `for` attribute becomes a link; a label that merely wraps its input
+is not one.
 
 ==============================================================================
 11. Vim                                                     *coc-htmlview-vim*
@@ -439,9 +450,10 @@ A document that cannot be rendered shows one line starting with
 `htmlview: cannot render:` and the reason.
 
 Colours are plain ~
-Highlighting of rules uses true colour: set 'termguicolors'. Role groups
-link to treesitter groups such as `@markup.link`; a colorscheme without them
-falls back down the chain (|coc-htmlview-highlight-roles|).
+Colours from stylesheet rules are true colour only (`guifg`, `guibg`): without
+'termguicolors' they do not show, only bold, italic and underline do. Role
+groups link to treesitter groups such as `@markup.link`; a colorscheme
+without them falls back down the chain (|coc-htmlview-highlight-roles|).
 
 Code is not highlighted ~
 Install the treesitter parser for the language, or give the block a
@@ -450,8 +462,10 @@ stylesheet to get colours other than the few the user-agent sheet sets.
 
 A stylesheet has no effect ~
 An unreadable path is skipped with the message
-`htmlview: cannot read stylesheet '…', skipped`, written to the error output
-of coc's extension host (no notification is shown). Relative paths in
-`render()` resolve against Neovim's working directory, so use absolute paths.
+`htmlview: cannot read stylesheet '…', skipped`, written with `console.error`
+to the stderr of coc's node process: coc echoes it as an error message and
+keeps it for |:CocPrintErrors|. Relative paths in `render()` resolve against
+the working directory of that node process, the directory Neovim was in when
+coc started (a later `:cd` does not change it), so use absolute paths.
 
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

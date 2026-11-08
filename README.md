@@ -30,7 +30,8 @@ editor instead of a browser.
 
 ## Requirements
 
-- Neovim 0.10 or newer and coc.nvim.
+- Neovim 0.10 or newer and coc.nvim. Neovim 0.9 is the floor: it lacks
+  inline virtual text, so link targets move to the end of the line.
 - Vim works with a reduced view: always a split, no virtual text, no
   treesitter, no refresh on resize or colorscheme change.
 
