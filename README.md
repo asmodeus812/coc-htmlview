@@ -37,11 +37,13 @@ editor instead of a browser.
 
 ## Installation
 
+From GitHub (coc runs `npm install`, which builds the extension):
+
 ```vim
-:CocInstall coc-htmlview
+:CocInstall https://github.com/asmodeus812/coc-htmlview
 ```
 
-Or from git:
+Or from a local clone:
 
 ```sh
 git clone https://github.com/asmodeus812/coc-htmlview

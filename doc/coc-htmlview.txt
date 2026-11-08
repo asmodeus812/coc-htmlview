@@ -38,11 +38,11 @@ extensions that use it.
 Requires Neovim 0.10 or newer and coc.nvim. Neovim 0.9 is the floor: it has
 no inline virtual text, so link targets appear at the end of the line and
 other inline decorations overlay the text. Vim works with a reduced view,
-see |coc-htmlview-vim|. Install with: >vim
+see |coc-htmlview-vim|. Install from GitHub (coc builds it): >vim
 
-    :CocInstall coc-htmlview
+    :CocInstall https://github.com/asmodeus812/coc-htmlview
 <
-Settings and installing from git are in the README.
+Settings and installing from a local clone are in the README.
 
 ==============================================================================
 3. Views                                                  *coc-htmlview-views*
