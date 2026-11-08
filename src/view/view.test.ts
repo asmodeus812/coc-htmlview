@@ -224,6 +224,20 @@ test("view/keys: keymap merge and link/anchor/context resolution", () => {
     assert.equal(adjacentAnchor(LAYOUT, 0, -1), undefined);
     assert.deepEqual(adjacentContext(LAYOUT, 2, {}, 1), { contexts: "ctx", key: "b" });
     assert.deepEqual(adjacentContext(LAYOUT, 2, { ctx: "b" }, 1), { contexts: "ctx", key: "a" });
+    // the selected title's box pushes it a line below the others: ]c must still visit every tab and wrap
+    const offset: Layout = { ...LAYOUT, links: [
+        { line: 0, startCol: 26, endCol: 43, target: { kind: "context", contexts: "tabs", key: "tab-1" } },
+        { line: 0, startCol: 46, endCol: 55, target: { kind: "context", contexts: "tabs", key: "tab-2" } },
+        { line: 1, startCol: 2, endCol: 23, target: { kind: "context", contexts: "tabs", key: "tab-0" } }
+    ] };
+    let at: string | undefined = "tab-0";
+    const visited: string[] = [];
+    for (let i = 0; i < 3; i++) {
+        at = adjacentContext(offset, 1, { tabs: at! }, 1)?.key;
+        visited.push(at!);
+    }
+    assert.deepEqual(visited, ["tab-1", "tab-2", "tab-0"]);
+    assert.deepEqual(adjacentContext(offset, 1, { tabs: "tab-0" }, -1), { contexts: "tabs", key: "tab-2" });
     assert.deepEqual(resolveKey("follow", LAYOUT, { line: 0, col: 8 }, {}), { kind: "cursor", line: 3, col: 0 });
     assert.deepEqual(resolveKey("follow", LAYOUT, { line: 1, col: 5 }, {}), { kind: "activate", target: { kind: "context", contexts: "ctx", key: "b" } });
     assert.equal(resolveKey("openUrl", LAYOUT, { line: 2, col: 5 }, {}).kind, "url");

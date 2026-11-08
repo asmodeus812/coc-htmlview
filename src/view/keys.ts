@@ -73,9 +73,9 @@ export function adjacentAnchor(layout: Layout, line: number, dir: 1 | -1): numbe
 }
 
 /**
- * The context to select for `]c`/`[c`: the label bar is the nearest line at or above the cursor holding
- * `context` links (else the first one below); the current context is `selected[contexts]` or the first label;
- * the move cycles through the bar's labels.
+ * The context to select for `]c`/`[c`: the group is the one of the nearest `context` link at or above the cursor
+ * (else the first one); its labels are all links of that group, ordered left to right; the current one is
+ * `selected[contexts]` or the first label; the move cycles through them and wraps.
  */
 export function adjacentContext(
     layout: Layout,
@@ -89,8 +89,11 @@ export function adjacentContext(
     let result: { contexts: string; key: string } | undefined;
     if (anchor !== undefined && anchor.target.kind === "context") {
         const contexts = anchor.target.contexts;
+        // one group = one radio group, whatever line each title ended up on (a selected tab's box can push its title
+        // down); titles read left to right
         const keys = labels
-            .filter((l) => l.line === anchor.line && l.target.kind === "context" && l.target.contexts === contexts)
+            .filter((l) => l.target.kind === "context" && l.target.contexts === contexts)
+            .sort((x, y) => x.startCol - y.startCol || x.line - y.line)
             .map((l) => (l.target as Extract<LinkTarget, { kind: "context" }>).key);
         const current = Math.max(0, keys.indexOf(selected[contexts] ?? keys[0]));
         result = { contexts, key: keys[(current + dir + keys.length) % keys.length] };
