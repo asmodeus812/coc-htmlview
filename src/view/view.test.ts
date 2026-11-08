@@ -169,15 +169,15 @@ function defineInNvim(batches: HlSpec[][], user: string, names: string[]): Recor
 
 const HAS_NVIM = spawnSync("nvim", ["--version"], { timeout: 5000 }).status === 0;
 
-test("view/lua: a second define overrides stylesheet groups; variable links keep default (user :hi wins)", { skip: !HAS_NVIM }, () => {
+test("view/lua: a second define overrides stylesheet groups; variable links follow htmlview (user :hi wins)", { skip: !HAS_NVIM }, () => {
     const first = [toHlSpec({ name: "HtmlViewH1", fg: { hex: "#111111" }, bold: true }), toHlSpec({ name: "HtmlViewVscodeX", link: "Comment" })];
     const second = [toHlSpec({ name: "HtmlViewH1", fg: { hex: "#222222" } }), toHlSpec({ name: "HtmlViewVscodeX", link: "String" })];
     const res = defineInNvim([first, second], "hi link HtmlViewVscodeUser Title", ["HtmlViewH1", "HtmlViewVscodeX"]);
     assert.ok(res !== undefined);
     // redefined in full: the new fg, and bold from the first definition is gone
     assert.deepEqual(res["HtmlViewH1"], { fg: 0x222222 });
-    // a default link: the first definition (or a user :hi) stays
-    assert.equal(res["HtmlViewVscodeX"].link, "Comment");
+    // a default link htmlview set follows its new definition; a user :hi stays
+    assert.equal(res["HtmlViewVscodeX"].link, "String");
     const user = defineInNvim([first], "hi link HtmlViewVscodeX Title", ["HtmlViewVscodeX"]);
     assert.equal(user?.["HtmlViewVscodeX"].link, "Title");
 });
@@ -216,6 +216,26 @@ test("view/lua: the canvas follows the window: NormalFloat in a float, Normal in
     const split = runViewLua<Probe>(body("split"));
     assert.deepEqual(float, { canvas: "NormalFloat", panel: 0x303050, half: 0x9898a8 });
     assert.deepEqual(split, { canvas: "Normal", panel: 0x101010, half: 0x888888 });
+});
+
+test("view/lua: a default group follows htmlview's changed definition, a user's :hi wins", { skip: !HAS_NVIM }, () => {
+    const res = runViewLua<{ ours: string; user: number }>([
+        "M.define({ { name = 'HtmlViewA', link = 'Comment' }, { name = 'HtmlViewB', link = 'Comment' } })",
+        "vim.cmd('hi HtmlViewB guifg=#123456')",
+        "M.define({ { name = 'HtmlViewA', link = 'NonText' }, { name = 'HtmlViewB', link = 'NonText' } })",
+        "res.ours = vim.api.nvim_get_hl(0, { name = 'HtmlViewA' }).link",
+        "res.user = vim.api.nvim_get_hl(0, { name = 'HtmlViewB' }).fg",
+    ]);
+    assert.deepEqual(res, { ours: "NonText", user: 0x123456 });
+});
+
+test("view/lua: an fg-only role takes the chain's colour without its background", { skip: !HAS_NVIM }, () => {
+    const res = runViewLua<{ hl: Record<string, number> }>([
+        "vim.cmd('hi FloatBorder guifg=#aabbcc guibg=#112233')",
+        "M.define({ { name = 'HtmlViewHostBorder', link = 'FloatBorder', only = 'fg' } })",
+        "res.hl = vim.api.nvim_get_hl(0, { name = 'HtmlViewHostBorder' })",
+    ]);
+    assert.deepEqual(res?.hl, { fg: 0xaabbcc });
 });
 
 test("view/lua: setting 'background' is watched like ColorScheme", { skip: !HAS_NVIM }, () => {

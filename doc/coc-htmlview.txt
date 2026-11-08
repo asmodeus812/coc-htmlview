@@ -264,7 +264,7 @@ group of its chain that your colorscheme defines:
 
     Group                          Default link chain ~
     HtmlViewHostCanvas             NormalFloat in a float, else Normal
-    HtmlViewHostCodeBlock          ColorColumn, CursorLine
+    HtmlViewHostCodeBlock          HtmlViewHostCanvas
     HtmlViewHostInlineCode         @markup.raw, Special, String
     HtmlViewHostKbd                @markup.raw, Special
     HtmlViewHostHeading1 to 6      @markup.heading.1 (to .6),
@@ -282,6 +282,12 @@ group of its chain that your colorscheme defines:
     HtmlViewHostBorder             FloatBorder, WinSeparator, NonText
     HtmlViewHostFaintBorder        NonText, WinSeparator
                                    (only --vscode-editor-lineHighlightBorder)
+
+The border roles (`HtmlViewHostBorder`, `HtmlViewHostFaintBorder`,
+`HtmlViewHostQuoteBar`) take only the foreground of their chain, so a
+`FloatBorder` with its own background does not paint one behind the lines.
+Code surfaces (`HtmlViewHostCodeBlock`) have the view's background; link it
+to `ColorColumn` or `CursorLine` for a tint.
     HtmlViewHostTableHeader        @markup.heading, Title
     HtmlViewHostMuted              Comment, NonText
     HtmlViewHostDiffAdd            DiffAdd, @diff.plus
@@ -325,9 +331,10 @@ stylesheets, so change them in CSS, not with `:hi`.
 
 OVERRIDING
 
-Role and variable groups are default links: a group you define wins
-(except `HtmlViewHostCanvas`, which the view sets; change `Normal` or
-`NormalFloat` instead). Change a role to restyle every view: >vim
+Role and variable groups are defaults: a group you define wins (except
+`HtmlViewHostCanvas`, which the view sets; change `Normal` or `NormalFloat`
+instead). A group htmlview defined and you did not change follows a newer
+htmlview's definition. Change a role to restyle every view: >vim
 
     hi HtmlViewHostLink guifg=#5fafff gui=underline
 <

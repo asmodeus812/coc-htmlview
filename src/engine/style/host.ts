@@ -61,16 +61,19 @@ export interface HostRoleEntry {
     group: string;
     /** Native groups, first existing wins (`hi def link` + fallback chain). */
     links: readonly string[];
+    /** Only the chain's foreground is taken (lines drawn over the canvas must not bring the native group's background). */
+    fgOnly?: boolean;
 }
 
-function role(name: string, links: string[]): HostRoleEntry {
-    return { group: "HtmlViewHost" + name.charAt(0).toUpperCase() + name.slice(1), links };
+function role(name: string, links: string[], fgOnly: boolean = false): HostRoleEntry {
+    const group: string = "HtmlViewHost" + name.charAt(0).toUpperCase() + name.slice(1);
+    return fgOnly ? { group, links, fgOnly } : { group, links };
 }
 
 /** Role → default native link chain. `canvas` is set by the view: NormalFloat in a float, Normal in a split. */
 export const hostRoles: Readonly<Record<HostRole, HostRoleEntry>> = Object.freeze({
     canvas: role("canvas", ["Normal"]),
-    codeBlock: role("codeBlock", ["ColorColumn", "CursorLine"]),
+    codeBlock: role("codeBlock", ["HtmlViewHostCanvas"]),
     inlineCode: role("inlineCode", ["@markup.raw", "Special", "String"]),
     kbd: role("kbd", ["@markup.raw", "Special"]),
     heading1: role("heading1", ["@markup.heading.1", "@markup.heading", "Title"]),
@@ -88,12 +91,12 @@ export const hostRoles: Readonly<Record<HostRole, HostRoleEntry>> = Object.freez
     strikethrough: role("strikethrough", ["@markup.strikethrough"]),
     mark: role("mark", ["Search"]),
     quote: role("quote", ["@markup.quote", "Comment"]),
-    quoteBar: role("quoteBar", ["NonText"]),
+    quoteBar: role("quoteBar", ["NonText"], true),
     listMarker: role("listMarker", ["@markup.list", "Special"]),
     /** Table rules, hr, CSS box borders (user decision: FloatBorder first, WinSeparator is too faint). */
-    border: role("border", ["FloatBorder", "WinSeparator", "NonText"]),
+    border: role("border", ["FloatBorder", "WinSeparator", "NonText"], true),
     /** A faint line (VS Code's `editor.lineHighlightBorder`); used only by that variable. */
-    faintBorder: role("faintBorder", ["NonText", "WinSeparator"]),
+    faintBorder: role("faintBorder", ["NonText", "WinSeparator"], true),
     tableHeader: role("tableHeader", ["@markup.heading", "Title"]),
     muted: role("muted", ["Comment", "NonText"]),
     diffAdd: role("diffAdd", ["DiffAdd", "@diff.plus"]),

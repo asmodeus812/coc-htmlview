@@ -263,6 +263,20 @@ local function resolve_color(spec, base)
     return value
 end
 
+-- What htmlview last set per default group, as nvim_get_hl reads it back. A group still equal to it (or undefined)
+-- is ours and follows a changed definition; anything else is the user's `:hi` and wins, like `hi def`. Global, so a
+-- reloaded (upgraded) module still knows its earlier definitions.
+_G.htmlview_hl_defaults = _G.htmlview_hl_defaults or {}
+local defaults = _G.htmlview_hl_defaults
+
+local function set_default(name, val)
+    local current = api.nvim_get_hl(0, { name = name })
+    if next(current) == nil or vim.deep_equal(current, defaults[name]) then
+        api.nvim_set_hl(0, name, val)
+        defaults[name] = api.nvim_get_hl(0, { name = name })
+    end
+end
+
 --- Defines groups. specs: {name, link} or {name, attrs, colors} (see convert.ts). Links are the variable groups
 --- (--vscode-* -> a standard group), the user's override point, so they keep default semantics (a user :hi wins).
 --- Attribute groups come from the stylesheets and are always redefined in full, so a new sheet set, an edited
@@ -284,7 +298,12 @@ function M.define(specs, float)
                     end
                 end
             end
-            api.nvim_set_hl(0, s.name, { link = chosen, default = true })
+            local val = { link = chosen }
+            if s.only ~= nil then
+                -- one attribute of the chain (a border's colour without its background)
+                val = { [s.only] = api.nvim_get_hl(0, { name = chosen, link = false })[s.only] }
+            end
+            set_default(s.name, val)
         else
             local val = vim.deepcopy(s.attrs)
             for attr, spec in pairs(s.colors) do

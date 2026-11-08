@@ -37,6 +37,8 @@ export interface GroupDef {
     link?: string;
     /** Further links tried in order when `link` gives no colour (the native fallback chain). */
     fallback?: string[];
+    /** With `link`: take only this attribute of the chain (Neovim), instead of linking the whole group. */
+    only?: "fg";
     fg?: ColorRef;
     bg?: ColorRef;
     /** Underline/undercurl colour (from `text-decoration-color`, `border-bottom-color` of links). */

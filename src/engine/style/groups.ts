@@ -31,7 +31,8 @@ export function newBook(): GroupBook {
 export function hostGroupDefs(env: StyleEnv): GroupDef[] {
     const roles: GroupDef[] = (Object.keys(hostRoles) as HostRole[]).map((r: HostRole): GroupDef => {
         const entry: HostRoleEntry = hostRoles[r];
-        return { name: entry.group, link: entry.links[0], fallback: entry.links.slice(1) };
+        const def: GroupDef = { name: entry.group, link: entry.links[0], fallback: entry.links.slice(1) };
+        return entry.fgOnly === true ? { ...def, only: "fg" } : def;
     });
     const vars: GroupDef[] = Object.keys(env.vars)
         .sort()

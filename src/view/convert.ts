@@ -29,7 +29,7 @@ export interface HlAttrs {
 
 /** A group definition for Lua `M.define`: a default link, or attributes plus colours to resolve. */
 export type HlSpec =
-    | { name: string; link: string; fallback?: string[] }
+    | { name: string; link: string; fallback?: string[]; only?: "fg" }
     | { name: string; attrs: HlAttrs; colors: Partial<Record<ColorAttr, ColorSpec>> };
 
 /**
@@ -73,7 +73,8 @@ function colorSpec(ref: ColorRef): ColorSpec {
 export function toHlSpec(def: GroupDef): HlSpec {
     let spec: HlSpec;
     if (def.link !== undefined) {
-        spec = def.fallback !== undefined && def.fallback.length > 0 ? { name: def.name, link: def.link, fallback: def.fallback } : { name: def.name, link: def.link };
+        const link: HlSpec = def.fallback !== undefined && def.fallback.length > 0 ? { name: def.name, link: def.link, fallback: def.fallback } : { name: def.name, link: def.link };
+        spec = def.only !== undefined ? { ...link, only: def.only } : link;
     } else {
         const attrs: HlAttrs = {};
         const colors: Partial<Record<ColorAttr, ColorSpec>> = {};
