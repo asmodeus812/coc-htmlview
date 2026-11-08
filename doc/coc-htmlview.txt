@@ -59,9 +59,11 @@ editor's width and height (the default), or in a split, made with the
 configured split command (default `botright vsplit`). The calling extension
 may choose; otherwise your `htmlview.view.mode` setting decides. A float
 shows the view's title in its window bar ('winbar'), a split in its status
-line. The text in a float follows the float's background: in the float,
-`Normal` and `HtmlViewHostCanvas` are `NormalFloat` (a window-local
-highlight namespace; splits keep `Normal`). Vim always splits.
+line. The view's background follows its window: `HtmlViewHostCanvas`
+links to `NormalFloat` in a float and to `Normal` in a split, and every
+colour derived from the editor background (panels, blends) resolves
+against it. Change `NormalFloat` or `Normal` to change it. Vim always
+splits.
 
 BUFFER NAMES AND REUSE
 
@@ -261,7 +263,7 @@ Every theme colour comes from a role group. Each one links to the first
 group of its chain that your colorscheme defines:
 
     Group                          Default link chain ~
-    HtmlViewHostCanvas             Normal (NormalFloat in a float)
+    HtmlViewHostCanvas             NormalFloat in a float, else Normal
     HtmlViewHostCodeBlock          ColorColumn, CursorLine
     HtmlViewHostInlineCode         @markup.raw, Special, String
     HtmlViewHostKbd                @markup.raw, Special
@@ -323,8 +325,9 @@ stylesheets, so change them in CSS, not with `:hi`.
 
 OVERRIDING
 
-Role and variable groups are default links: a group you define wins. Change
-a role to restyle every view: >vim
+Role and variable groups are default links: a group you define wins
+(except `HtmlViewHostCanvas`, which the view sets; change `Normal` or
+`NormalFloat` instead). Change a role to restyle every view: >vim
 
     hi HtmlViewHostLink guifg=#5fafff gui=underline
 <

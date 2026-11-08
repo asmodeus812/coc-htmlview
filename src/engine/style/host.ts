@@ -67,7 +67,7 @@ function role(name: string, links: string[]): HostRoleEntry {
     return { group: "HtmlViewHost" + name.charAt(0).toUpperCase() + name.slice(1), links };
 }
 
-/** Role → default native link chain. `canvas` is always Normal (also in a float). */
+/** Role → default native link chain. `canvas` is set by the view: NormalFloat in a float, Normal in a split. */
 export const hostRoles: Readonly<Record<HostRole, HostRoleEntry>> = Object.freeze({
     canvas: role("canvas", ["Normal"]),
     codeBlock: role("codeBlock", ["ColorColumn", "CursorLine"]),

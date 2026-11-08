@@ -69,18 +69,6 @@ local function set_win_opts(win, title, float)
     end
 end
 
--- A float's text follows the float's background: in a window-local highlight namespace Normal and the canvas
--- role group are NormalFloat. A split uses the global namespace (0). pcall: nvim_win_set_hl_ns needs Neovim 0.10.
-local function set_win_theme(win, float)
-    local ns = 0
-    if float then
-        ns = api.nvim_create_namespace('htmlview_float')
-        api.nvim_set_hl(ns, 'Normal', { link = 'NormalFloat' })
-        api.nvim_set_hl(ns, 'HtmlViewHostCanvas', { link = 'NormalFloat' })
-    end
-    pcall(api.nvim_win_set_hl_ns, win, ns)
-end
-
 local function float_config(o)
     local cols, rows = vim.o.columns, vim.o.lines - vim.o.cmdheight
     local width = math.max(20, math.floor(cols * o.floatWidth))
@@ -109,7 +97,6 @@ local function open_window(buf, o)
     end
     local float = api.nvim_win_get_config(win).relative ~= ''
     set_win_opts(win, o.title, float)
-    set_win_theme(win, float)
     return win
 end
 
@@ -239,8 +226,12 @@ local function to_rgb(n)
     return math.floor(n / 65536) % 256, math.floor(n / 256) % 256, n % 256
 end
 
-local function normal_bg()
-    local hl = api.nvim_get_hl(0, { name = 'Normal', link = false })
+-- The canvas follows the window the view shows in: NormalFloat in a float, Normal in a split. Every colour that
+-- derives from the canvas (the editor background variables, blends) then resolves against it.
+local CANVAS = 'HtmlViewHostCanvas'
+
+local function canvas_bg()
+    local hl = api.nvim_get_hl(0, { name = CANVAS, link = false })
     local fallback = vim.o.background == 'light' and 0xffffff or 0x000000
     return hl.bg or fallback
 end
@@ -276,10 +267,14 @@ end
 --- (--vscode-* -> a standard group), the user's override point, so they keep default semantics (a user :hi wins).
 --- Attribute groups come from the stylesheets and are always redefined in full, so a new sheet set, an edited
 --- sheet or a changed colorscheme applies on the next update instead of the first definition winning.
-function M.define(specs)
-    local base = normal_bg()
+function M.define(specs, float)
+    local canvas = float and 'NormalFloat' or 'Normal'
+    api.nvim_set_hl(0, CANVAS, { link = canvas })
+    local base = canvas_bg()
     for _, s in ipairs(specs) do
-        if s.link ~= nil then
+        if s.name == CANVAS then
+            -- set above from the window kind, not a default link
+        elseif s.link ~= nil then
             local chosen = s.link
             if s.fallback ~= nil then
                 for _, g in ipairs({ s.link, unpack(s.fallback) }) do
@@ -367,7 +362,11 @@ function M.update(buf, ns, code_ns, lines, specs, marks, decor)
         api.nvim_set_option_value('modified', false, { buf = buf })
         api.nvim_buf_clear_namespace(buf, ns, 0, -1)
         api.nvim_buf_clear_namespace(buf, code_ns, 0, -1)
-        M.define(specs)
+        local float = false
+        for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+            float = float or api.nvim_win_get_config(win).relative ~= ''
+        end
+        M.define(specs, float)
         M.marks(buf, ns, marks)
         if decor ~= nil then
             M.decor(buf, ns, decor)
