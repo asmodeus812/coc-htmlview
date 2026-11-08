@@ -2,13 +2,13 @@
 //
 // Usage (from the repo root): node scripts/oracle/capture.mjs [name ...]   (no names: every fixture)
 //
-// For each `src/__fixtures__/*.html` it
+// For each `tests/fixtures/*.html` it
 // loads a page in headless Firefox over WebDriver BiDi (node's built-in WebSocket, no dependency) that stacks, as
 // VS Code's webview does: Firefox's own UA sheet (the browser equivalent of engine/style/ua.css), VS Code's webview
 // default styles (vscode-webview-defaults.css, verbatim), then the document's own styles (no extra sheets). `body` gets class `vscode-dark`. Every
 // `--vscode-*` variable is defined as a distinct SENTINEL colour (`rgb(1, hi, lo)`, map in oracle/vars.json), so a
 // computed colour tells which host variable fed it; font variables get plain values.
-// Output: src/__fixtures__/oracle/<name>.json = { name, firefox, sheets, elements: [{ path, tag, id?, class?,
+// Output: tests/fixtures/oracle/<name>.json = { name, firefox, sheets, elements: [{ path, tag, id?, class?,
 // style: {prop: value}, before?, after?, marker? }]
 // (marker: only an explicit `::marker { content }`; Firefox reports `normal` for list-style markers, see list-style-type) }, elements in document order (html, body and body's subtree).
 // Only the Firefox process this script starts is stopped (browser.close, then SIGTERM/SIGKILL of that child), and
@@ -20,7 +20,7 @@ import { join, resolve } from 'node:path';
 import * as esbuild from 'esbuild';
 
 const root = process.cwd();
-const fixturesDir = resolve(root, 'src/__fixtures__');
+const fixturesDir = resolve(root, 'tests/fixtures');
 const outDir = join(fixturesDir, 'oracle');
 const cacheDir = resolve(root, '.cache/oracle');
 const PROPS = [

@@ -1,6 +1,6 @@
 /**
  * The htmlview engine: a browser-style core. html → dom → (css + style) → layout → Layout → view. Each part's
- * index.ts is its contract (see CONTRACT.md); this file only re-exports the parts. Nothing here imports
+ * index.ts is its contract (see doc/CONTRACT.md); this file only re-exports the parts. Nothing here imports
  * host-extension code.
  */
 export * as dom from "./dom";

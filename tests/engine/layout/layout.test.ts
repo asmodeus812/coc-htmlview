@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { DEFAULT_LINK_TARGET, linkTargetText, paintPriority } from "./index";
-import type { VirtText } from "../../types";
+import { DEFAULT_LINK_TARGET, linkTargetText, paintPriority } from "../../../src/engine/layout/index";
+import type { VirtText } from "../../../src/types";
 
 test("engine/layout: paint priority grows with depth and layer, capped", () => {
     assert.equal(paintPriority(100, 0, 0), 100);

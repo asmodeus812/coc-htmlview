@@ -1,6 +1,6 @@
 /**
  * Oracle check (CONTRACT.md acceptance 1, layout half): StyledTrees built from Firefox's computed styles
- * (src/__fixtures__/oracle) over the fixture markup (node-html-parser, test-only glue), laid out by the
+ * (tests/fixtures/oracle) over the fixture markup (node-html-parser, test-only glue), laid out by the
  * box engine; the buffer must show what those styles imply: every word once, block siblings on their own lines,
  * margins as blank lines, list markers, left borders. Lengths use the style part's mapping (px /8 h, /16 v); the
  * layout hints the UA sheet would set are simulated here for `pre`, `a[href]` and `br` (test glue only).
@@ -10,12 +10,12 @@ import * as assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
 import { HTMLElement, Node as HtmlNode, TextNode, parse } from "node-html-parser";
-import { fixturesDir, loadFixture } from "../../__fixtures__";
-import type { ComputedStyle, Display, ListStyleType, StyledElement, StyledNode, StyledTree, WhiteSpace } from "../style";
-import { initialStyle } from "../style";
-import { buildBoxes, layoutBoxes, placeBoxes } from "./index";
-import type { Layout } from "../../types";
-import type { PlacedBox, PlacedTree } from "./index";
+import { fixturesDir, loadFixture } from "../../fixtures";
+import type { ComputedStyle, Display, ListStyleType, StyledElement, StyledNode, StyledTree, WhiteSpace } from "../../../src/engine/style";
+import { initialStyle } from "../../../src/engine/style";
+import { buildBoxes, layoutBoxes, placeBoxes } from "../../../src/engine/layout/index";
+import type { Layout } from "../../../src/types";
+import type { PlacedBox, PlacedTree } from "../../../src/engine/layout/index";
 import { violations } from "./testkit";
 
 interface OracleElement {

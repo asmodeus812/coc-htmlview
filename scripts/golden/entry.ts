@@ -7,10 +7,10 @@ import * as fs from "fs";
 import * as path from "path";
 import type { Neovim } from "coc.nvim";
 import { renderOn } from "../../src/render";
-import type { LinkTarget, RefreshRequest, RefreshResult } from "../../src/view";
-import type { ThemeKind } from "../../src/types";
+import type { RefreshRequest, RefreshResult } from "../../src/view";
+import type { LinkTarget, ThemeKind } from "../../src/types";
 import { flattenVirtual, toDecorations, toExtmarks, toHlSpec } from "../../src/view/convert";
-import { listFixtures, loadFixture } from "../../src/__fixtures__";
+import { listFixtures, loadFixture } from "../../tests/fixtures";
 import { captured } from "./view-shim";
 
 /** The generic fixtures only (our own pages and hand-made edge cases): no extra sheets, no pre-pass, no extra languages. */

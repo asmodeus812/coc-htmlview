@@ -6,7 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 /** Absolute path of the fixtures folder. */
-export const fixturesDir: string = path.resolve(process.cwd(), "src", "__fixtures__");
+export const fixturesDir: string = path.resolve(process.cwd(), "tests", "fixtures");
 
 /** Fixture names (file names without `.html`), sorted. */
 export function listFixtures(): string[] {

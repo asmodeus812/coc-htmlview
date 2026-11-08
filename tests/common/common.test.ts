@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { cellToByte, displayWidth, MarkPriority } from "./index";
+import { cellToByte, displayWidth, MarkPriority } from "../../src/common/index";
 
 test("common: display widths", () => {
     assert.equal(displayWidth("abc"), 3);

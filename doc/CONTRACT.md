@@ -126,14 +126,14 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
 
 ## Testing
 
-`npm test` bundles every `src/**/*.test.ts` with esbuild into `.cache/test` and runs `node --test`, with
-`node:test` and `node:assert/strict`; fixtures through `__fixtures__/index.ts` (`loadFixture(name)`). The engine,
+`npm test` bundles every `tests/**/*.test.ts` (mirroring `src/`) with esbuild into `.cache/test` and runs `node --test`, with
+`node:test` and `node:assert/strict`; fixtures through `tests/fixtures/index.ts` (`loadFixture(name)`). The engine,
 highlight-hljs and convert need no nvim. `npx tsc --noEmit -p .` must not add errors (baseline: 24 unrelated errors
 outside htmlview).
 
 Acceptance checks:
 
-1. **Firefox oracle.** `src/__fixtures__/oracle/<name>.json` holds per element (path
+1. **Firefox oracle.** `tests/fixtures/oracle/<name>.json` holds per element (path
    `tag#id.cls:nth-child(k)>…`) the computed `display, color, background-color, font-weight, font-style,
    text-decoration-line, white-space, list-style-type, margin-*, padding-*, border-*-style`, plus `::before`/`::after`
    content, from Firefox's UA + VS Code webview compatibility defaults + the adapter's sheets, body `vscode-dark`.

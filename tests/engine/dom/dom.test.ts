@@ -2,8 +2,8 @@ import { test } from "node:test";
 import * as assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { elementChildren, parentElement, parseDocument } from "./index";
-import type { DomDocument, DomElement, DomNode, DomText } from "./index";
+import { elementChildren, parentElement, parseDocument } from "../../../src/engine/dom/index";
+import type { DomDocument, DomElement, DomNode, DomText } from "../../../src/engine/dom/index";
 import { byTag } from "../../testutil";
 
 function sampleDoc(): DomDocument {
@@ -21,7 +21,7 @@ test("engine/dom: helpers walk preorder ids without parent pointers", () => {
     assert.equal(parentElement(doc, 0), undefined);
 });
 
-const FIXTURES: string = join(process.cwd(), "src", "__fixtures__");
+const FIXTURES: string = join(process.cwd(), "tests", "fixtures");
 
 function fixtureNames(): string[] {
     return readdirSync(FIXTURES).filter((n: string) => n.endsWith(".html"));

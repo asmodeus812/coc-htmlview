@@ -2,20 +2,20 @@ import { test } from "node:test";
 import * as assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import type { Neovim } from "coc.nvim";
-import { detectThemeKind, open } from "./index";
-import type { RefreshRequest, RefreshResult } from "./index";
-import { byteToCell } from "../common";
-import { blendHex, type HlSpec, toExtmarks, toHlSpec, vimHiCommand } from "./convert";
-import VIEW_LUA from "./view.lua";
+import { detectThemeKind, open } from "../../src/view/index";
+import type { RefreshRequest, RefreshResult } from "../../src/view/index";
+import { byteToCell } from "../../src/common";
+import { blendHex, type HlSpec, toExtmarks, toHlSpec, vimHiCommand } from "../../src/view/convert";
+import VIEW_LUA from "../../src/view/view.lua";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { adjacentAnchor, adjacentContext, adjacentLink, buildRequest, linkAt, mergeKeymap, resolveKey } from "./keys";
-import { vimItems, vimNotify } from "./vim";
-import type { Layout } from "../types";
-import type { CodeHighlighter } from "../highlight";
-import { renderOn } from "../render";
+import { adjacentAnchor, adjacentContext, adjacentLink, buildRequest, linkAt, mergeKeymap, resolveKey } from "../../src/view/keys";
+import { vimItems, vimNotify } from "../../src/view/vim";
+import type { Layout } from "../../src/types";
+import type { CodeHighlighter } from "../../src/highlight";
+import { renderOn } from "../../src/render";
 
 /** A fake nvim client that records every call and answers from a small script. */
 class FakeNvim extends EventEmitter {

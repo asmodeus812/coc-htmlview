@@ -3,13 +3,13 @@ import * as assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import hljs from "highlight.js";
 import type { Neovim } from "coc.nvim";
-import { MarkPriority } from "../common";
-import type { CodeRegion, Mark } from "../types";
-import { buildLanguageTable, createHighlighter, defaultLanguageTable, highlightRegions, treesitterRegions } from "./index";
-import { scanHljsHtml } from "./hljs";
-import { resolveLanguage } from "./languages";
-import { buildJobs, luaArgs } from "./treesitter";
-import TREESITTER_LUA from "./treesitter.lua";
+import { MarkPriority } from "../../src/common";
+import type { CodeRegion, Mark } from "../../src/types";
+import { buildLanguageTable, createHighlighter, defaultLanguageTable, highlightRegions, treesitterRegions } from "../../src/highlight/index";
+import { scanHljsHtml } from "../../src/highlight/hljs";
+import { resolveLanguage } from "../../src/highlight/languages";
+import { buildJobs, luaArgs } from "../../src/highlight/treesitter";
+import TREESITTER_LUA from "../../src/highlight/treesitter.lua";
 
 const groupFor = (cls: string): string | undefined => (cls.startsWith("hljs-") ? `G_${cls.slice(5)}` : undefined);
 

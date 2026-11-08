@@ -1,6 +1,6 @@
 /**
  * Firefox oracle (CONTRACT.md acceptance 1, the primary truth): for every fixture in
- * src/__fixtures__/oracle/, compute styles with the engine (UA sheet only, body `vscode-dark`) and compare with Firefox's computed styles per element: display, white-space, font-weight
+ * tests/fixtures/oracle/, compute styles with the engine (UA sheet only, body `vscode-dark`) and compare with Firefox's computed styles per element: display, white-space, font-weight
  * (bold ⇔ ≥ 600), font-style, text-decoration-line, list-style-type, margins/padding/borders (non-zero ⇔
  * non-zero cells), colour SOURCES (a sentinel colour names the `--vscode-*` variable that fed it, a literal must
  * match) and `::before`/`::after` content. Prints the agreement per property and per fixture, and asserts that
@@ -11,13 +11,13 @@ import { test } from "node:test";
 import * as assert from "node:assert/strict";
 import * as fs from "fs";
 import * as path from "path";
-import type { Color, StyledElement, StyledNode, StyleEnv } from "./index";
-import { defaultHostVars } from "./host";
-import { computeStyles, parseSheets } from "./index";
-import { parseDocument } from "../dom";
-import { initialFormState } from "../interact";
-import { displayOf } from "./properties";
-import { cssString } from "./values";
+import type { Color, StyledElement, StyledNode, StyleEnv } from "../../../src/engine/style/index";
+import { defaultHostVars } from "../../../src/engine/style/host";
+import { computeStyles, parseSheets } from "../../../src/engine/style/index";
+import { parseDocument } from "../../../src/engine/dom";
+import { initialFormState } from "../../../src/engine/interact";
+import { displayOf } from "../../../src/engine/style/properties";
+import { cssString } from "../../../src/engine/style/values";
 
 interface OracleElement {
     path: string;
@@ -35,7 +35,7 @@ interface Oracle {
 }
 
 const ROOT: string = process.cwd();
-const ORACLE_DIR: string = path.join(ROOT, "src", "__fixtures__", "oracle");
+const ORACLE_DIR: string = path.join(ROOT, "tests", "fixtures", "oracle");
 const SIDE_PROPS: string[] = ["top", "right", "bottom", "left"].flatMap((s: string) => [`margin-${s}`, `padding-${s}`, `border-${s}-style`]);
 /** Properties that must agree everywhere except for a documented deviation. */
 const STRICT: string[] = ["display", "white-space", "font-weight", "font-style", "text-decoration-line", "list-style-type"];
@@ -237,7 +237,7 @@ function runOracle(): Report {
     const names: string[] = fs.readdirSync(ORACLE_DIR).filter((f: string) => f.endsWith(".json") && f !== "vars.json").map((f: string) => f.slice(0, -5)).sort();
     for (const name of names) {
         const oracle: Oracle = JSON.parse(fs.readFileSync(path.join(ORACLE_DIR, name + ".json"), "utf8"));
-        const html: string = fs.readFileSync(path.join(ROOT, "src", "__fixtures__", name + ".html"), "utf8");
+        const html: string = fs.readFileSync(path.join(ROOT, "tests", "fixtures", name + ".html"), "utf8");
         const sheets = parseSheets([]);
         const doc = parseDocument(html);
         const tree = computeStyles(doc, sheets, env, initialFormState(doc));

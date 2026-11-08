@@ -15,7 +15,7 @@
  * links down its native chain. Inline `style=""` gets `HtmlViewInline<hash of its visual declarations>`.
  * A {@link StyledElement} paints with `paint`: its matched rule groups in cascade order (lowest first), so a user
  * `:hi HtmlViewImpactHigh` overrides exactly what that rule styles, and nesting gives inheritance (inner marks
- * sit higher, see CONTRACT.md "Coordinates").
+ * sit higher, see doc/CONTRACT.md "Coordinates").
  *
  * Pure and synchronous; no nvim; never throws on bad values (the declaration is dropped).
  */

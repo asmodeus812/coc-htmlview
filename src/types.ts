@@ -28,7 +28,7 @@ export type ColorRef =
 /**
  * One highlight group to define. Either `link` (variable groups: `hi def link`, default semantics, so the user's
  * `:hi` wins) or attributes (class groups, redefined in full on every update and on ColorScheme).
- * An explicit `false` on a boolean attribute switches it off over an outer mark (see CONTRACT.md).
+ * An explicit `false` on a boolean attribute switches it off over an outer mark (see doc/CONTRACT.md).
  */
 export interface GroupDef {
     /** Group name, from {@link groupName}. */

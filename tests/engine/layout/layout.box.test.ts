@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { buildBoxes, layoutBoxes } from "./index";
-import type { Layout } from "../../types";
-import type { ComputedStyle, StyledElement } from "../style";
+import { buildBoxes, layoutBoxes } from "../../../src/engine/layout/index";
+import type { Layout } from "../../../src/types";
+import type { ComputedStyle, StyledElement } from "../../../src/engine/style";
 import { B, I, box4, docRoot, edges, kit, layOut, solid, violations } from "./testkit";
 import type { Kit } from "./testkit";
 

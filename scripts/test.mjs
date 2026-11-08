@@ -6,9 +6,9 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync, rmSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-// every test under src
-const roots = ['src'];
-const outbase = 'src';
+// every test under tests
+const roots = ['tests'];
+const outbase = 'tests';
 const outdir = '.cache/test';
 
 function findTests(dir) {

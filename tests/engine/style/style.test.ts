@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { computeStyles, groupName, initialStyle, inheritedProperties, lengthToCells, parseSheets, UA_SHEET } from "./index";
-import { defaultHostVars, hostRoles } from "./host";
+import { computeStyles, groupName, initialStyle, inheritedProperties, lengthToCells, parseSheets, UA_SHEET } from "../../../src/engine/style/index";
+import { defaultHostVars, hostRoles } from "../../../src/engine/style/host";
 
 test("engine/style: lengths compute to cells and lines", () => {
     assert.equal(lengthToCells(2, "ch", "h", 80), 2);

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import * as path from "path";
 import type * as Coc from "coc.nvim";
-import { DEFAULT_SPLIT_COMMAND, isSplitCommand, readSettings, resolveSheetPath } from "./settings";
+import { DEFAULT_SPLIT_COMMAND, isSplitCommand, readSettings, resolveSheetPath } from "../src/settings";
 
 test("isSplitCommand accepts split-like commands", () => {
     for (const c of ["botright vsplit", "topleft split", "tab split", "vertical 80split", "vert new", "aboveleft 30 sp", "belowright vnew", "to vs", "split", "tab vert bo vsplit", "  botright vsplit "]) {

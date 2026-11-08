@@ -3,7 +3,7 @@
  * stays out of the bundle; layout's fixtures live in engine/layout/testkit.ts.
  */
 import * as assert from "node:assert/strict";
-import type { DomDocument, DomElement, DomNode } from "./engine/dom";
+import type { DomDocument, DomElement, DomNode } from "../src/engine/dom";
 
 /** The element with attribute `id`; fails the test when there is none. */
 export function byId(doc: DomDocument, id: string): DomElement {

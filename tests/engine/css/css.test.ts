@@ -12,9 +12,9 @@ import {
     parseInlineStyle,
     parseSelectorList,
     parseSheet,
-} from "./index";
-import type { ComplexSelector, MatchContext, MatchedDeclaration, Origin, PseudoElement, Stylesheet } from "./index";
-import type { DomDocument, DomElement, DomNode } from "../dom";
+} from "../../../src/engine/css/index";
+import type { ComplexSelector, MatchContext, MatchedDeclaration, Origin, PseudoElement, Stylesheet } from "../../../src/engine/css/index";
+import type { DomDocument, DomElement, DomNode } from "../../../src/engine/dom";
 import { byId } from "../../testutil";
 
 // ---- a hand-built DOM (dom/ is another part): preorder ids, parent table ----

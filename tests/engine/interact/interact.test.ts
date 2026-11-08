@@ -2,10 +2,10 @@ import { test } from "node:test";
 import * as assert from "node:assert/strict";
 import { parse, HTMLElement as HNode, NodeType } from "node-html-parser";
 import type { Node as PNode } from "node-html-parser";
-import { activate, controlFor, emptyFormState, findControls, fromSelection, initialFormState, isChecked, toSelection, toggle, toggleLinks } from "./index";
-import type { FormState } from "./index";
-import type { DomDocument, DomElement, DomNode } from "../dom";
-import { loadFixture } from "../../__fixtures__";
+import { activate, controlFor, emptyFormState, findControls, fromSelection, initialFormState, isChecked, toSelection, toggle, toggleLinks } from "../../../src/engine/interact/index";
+import type { FormState } from "../../../src/engine/interact/index";
+import type { DomDocument, DomElement, DomNode } from "../../../src/engine/dom";
+import { loadFixture } from "../../fixtures";
 import { byId } from "../../testutil";
 
 /** Test-only DomDocument builder (the real parser belongs to the dom part): node-html-parser tree → engine dom. */

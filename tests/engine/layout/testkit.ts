@@ -2,14 +2,14 @@
  * Test helpers of the box engine: hand-built StyledTree fixtures (no dom/css/style needed) and the Layout
  * invariant checker. Test-only; not imported by runtime code.
  */
-import { displayWidth } from "../../common";
-import type { DomElement } from "../dom";
-import type { BorderSide, ComputedStyle, StyledElement, StyledNode, StyledPseudo, StyledText, StyledTree } from "../style";
-import { initialStyle } from "../style";
-import type { Layout } from "../../types";
-import { sliceCells } from "./emit";
-import { layoutBoxes } from "./index";
-import type { LayoutOptions } from "./index";
+import { displayWidth } from "../../../src/common";
+import type { DomElement } from "../../../src/engine/dom";
+import type { BorderSide, ComputedStyle, StyledElement, StyledNode, StyledPseudo, StyledText, StyledTree } from "../../../src/engine/style";
+import { initialStyle } from "../../../src/engine/style";
+import type { Layout } from "../../../src/types";
+import { sliceCells } from "../../../src/engine/layout/emit";
+import { layoutBoxes } from "../../../src/engine/layout/index";
+import type { LayoutOptions } from "../../../src/engine/layout/index";
 import * as assert from "node:assert/strict";
 
 /** Element fixture options. */

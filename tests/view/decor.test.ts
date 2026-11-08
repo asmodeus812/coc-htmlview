@@ -7,11 +7,11 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Neovim } from "coc.nvim";
-import { open } from "./index";
-import type { RefreshRequest, RefreshResult } from "./index";
-import { flattenVirtual, toDecorations, toHlSpec } from "./convert";
-import type { Layout } from "../types";
-import VIEW_LUA from "./view.lua";
+import { open } from "../../src/view/index";
+import type { RefreshRequest, RefreshResult } from "../../src/view/index";
+import { flattenVirtual, toDecorations, toHlSpec } from "../../src/view/convert";
+import type { Layout } from "../../src/types";
+import VIEW_LUA from "../../src/view/view.lua";
 
 const BASE: Layout = {
     lines: ["世界 word", "  item", "code"],

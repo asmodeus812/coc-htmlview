@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import type { Color, StyledElement, StyledNode, StyledTree, StyleEnv } from "./index";
-import type { ThemeKind } from "../../types";
-import { defaultHostVars } from "./host";
-import { computeStyles, parseSheets } from "./index";
-import { parseDocument } from "../dom";
-import { emptyFormState } from "../interact";
-import type { FormState } from "../interact";
+import type { Color, StyledElement, StyledNode, StyledTree, StyleEnv } from "../../../src/engine/style/index";
+import type { ThemeKind } from "../../../src/types";
+import { defaultHostVars } from "../../../src/engine/style/host";
+import { computeStyles, parseSheets } from "../../../src/engine/style/index";
+import { parseDocument } from "../../../src/engine/dom";
+import { emptyFormState } from "../../../src/engine/interact";
+import type { FormState } from "../../../src/engine/interact";
 
 function render(html: string, css: string = "", kind: ThemeKind = "dark", state: FormState = emptyFormState()): StyledTree {
     const sources = css ? [{ name: "test.css", text: css, origin: "author" as const }] : [];

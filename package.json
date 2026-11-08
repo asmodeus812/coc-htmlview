@@ -25,7 +25,7 @@
   ],
   "files": [
     "lib",
-    "doc",
+    "doc/coc-htmlview.txt",
     "LICENSE",
     "README.md"
   ],
