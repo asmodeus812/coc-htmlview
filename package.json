@@ -1,0 +1,83 @@
+{
+  "name": "coc-htmlview",
+  "version": "0.1.0",
+  "description": "Browser-style HTML and CSS rendering into Neovim buffers for coc.nvim extensions",
+  "author": "Svetlozar Iliev",
+  "publisher": "asmodeus812",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asmodeus812/coc-htmlview"
+  },
+  "keywords": [
+    "coc.nvim",
+    "html",
+    "css",
+    "renderer"
+  ],
+  "engines": {
+    "coc": "^0.0.82"
+  },
+  "main": "lib/index.js",
+  "types": "lib/api.d.ts",
+  "activationEvents": [
+    "*"
+  ],
+  "files": [
+    "lib",
+    "doc",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node esbuild.mjs && tsc -p tsconfig.api.json",
+    "watch": "node esbuild.mjs --watch",
+    "prepare": "npm run build",
+    "test": "node scripts/test.mjs",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "coc-htmlview",
+      "properties": {
+        "htmlview.view.mode": {
+          "type": "string",
+          "enum": [
+            "split",
+            "float"
+          ],
+          "default": "split",
+          "scope": "application",
+          "markdownDescription": "Where views open when the calling extension does not choose: a window `split` (see `#htmlview.view.splitCommand#`) or a centred `float` (Neovim only; Vim always splits)."
+        },
+        "htmlview.view.splitCommand": {
+          "type": "string",
+          "default": "botright vsplit",
+          "scope": "application",
+          "markdownDescription": "Ex command that creates the split for `#htmlview.view.mode#` `split`, e.g. `botright vsplit`, `topleft split`, `tab split`. Anything that is not a split command falls back to the default with one warning."
+        },
+        "htmlview.stylesheets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "scope": "application",
+          "markdownDescription": "Extra CSS files applied to every view after the calling extension's stylesheets, so their rules win. `~` and environment variables are expanded; relative paths resolve against the workspace root."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "css": "^3.0.0",
+    "highlight.js": "^11.11.1",
+    "node-html-parser": "6.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "coc.nvim": "^0.0.83-next.18",
+    "esbuild": "^0.19.8",
+    "typescript": "^5.3.3"
+  }
+}

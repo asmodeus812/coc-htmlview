@@ -1,0 +1,8 @@
+src
+scripts
+.cache
+tsconfig*.json
+esbuild.mjs
+*.map
+.prettierrc
+.editorconfig

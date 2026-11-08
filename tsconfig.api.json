@@ -1,0 +1,1 @@
+{ "extends": "./tsconfig.json", "compilerOptions": { "declaration": true, "emitDeclarationOnly": true, "outDir": "lib", "sourceMap": false }, "include": [], "files": ["src/api.ts"] }

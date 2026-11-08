@@ -1,0 +1,5 @@
+*coc-htmlview.txt*  Browser-style HTML and CSS rendering for coc.nvim extensions
+
+Documentation pending.
+
+ vim:tw=78:ft=help:norl:

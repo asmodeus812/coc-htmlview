@@ -1,0 +1,3 @@
+# coc-htmlview
+
+Documentation pending.
