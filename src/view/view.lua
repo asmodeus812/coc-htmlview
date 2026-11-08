@@ -51,6 +51,7 @@ end
 
 local function set_win_opts(win, title, float)
     local o = { win = win, scope = 'local' }
+    local label = ' ' .. title:gsub('%%', '%%%%')
     api.nvim_set_option_value('wrap', false, o)
     api.nvim_set_option_value('conceallevel', 2, o)
     api.nvim_set_option_value('concealcursor', 'nc', o)
@@ -60,8 +61,11 @@ local function set_win_opts(win, title, float)
     api.nvim_set_option_value('foldcolumn', '0', o)
     api.nvim_set_option_value('list', false, o)
     api.nvim_set_option_value('spell', false, o)
-    if not float then
-        api.nvim_set_option_value('statusline', ' ' .. title:gsub('%%', '%%%%'), o)
+    if float then
+        -- a borderless float has no frame for a title: the window bar carries it
+        pcall(api.nvim_set_option_value, 'winbar', label, o)
+    else
+        api.nvim_set_option_value('statusline', label, o)
     end
 end
 
@@ -88,44 +92,24 @@ local function float_config(o)
         col = math.floor((cols - width) / 2),
         row = math.floor((rows - height) / 2),
         style = 'minimal',
-        border = o.border,
-        title = ' ' .. o.title .. ' ',
-        title_pos = 'center',
+        border = 'none',
     }
-end
-
-local function open_float(buf, o)
-    local cfg = float_config(o)
-    local ok, win = pcall(api.nvim_open_win, buf, true, cfg)
-    if not ok then
-        cfg.title = nil
-        cfg.title_pos = nil
-        win = api.nvim_open_win(buf, true, cfg)
-    end
-    return win
-end
-
--- A reused float shows the new view's title; pcall as in open_float (older Neovim, or no border).
-local function retitle_float(win, title)
-    if api.nvim_win_get_config(win).relative ~= '' then
-        pcall(api.nvim_win_set_config, win, { title = ' ' .. title .. ' ', title_pos = 'center' })
-    end
 end
 
 local function open_window(buf, o)
     local win = vim.fn.bufwinid(buf)
     if win ~= -1 then
         api.nvim_set_current_win(win)
-        retitle_float(win, o.title)
     elseif o.mode == 'float' then
-        win = open_float(buf, o)
+        win = api.nvim_open_win(buf, true, float_config(o))
     else
         vim.cmd(o.splitCommand)
         win = api.nvim_get_current_win()
         api.nvim_win_set_buf(win, buf)
     end
-    set_win_opts(win, o.title, o.mode == 'float')
-    set_win_theme(win, api.nvim_win_get_config(win).relative ~= '')
+    local float = api.nvim_win_get_config(win).relative ~= ''
+    set_win_opts(win, o.title, float)
+    set_win_theme(win, float)
     return win
 end
 
@@ -224,7 +208,7 @@ local function install_autocmds(buf, token)
 end
 
 --- Opens or reuses the buffer and its window. o: name, reuse, mode, splitCommand, floatWidth, floatHeight, title,
---- border, token, keys ({lhs, action} pairs). Returns {bufnr, winid, width, background}.
+--- token, keys ({lhs, action} pairs). Returns {bufnr, winid, width, background}.
 function M.open(o)
     local buf = o.reuse and find_buf(o.name) or -1
     if buf ~= -1 then

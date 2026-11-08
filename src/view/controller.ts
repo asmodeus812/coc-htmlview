@@ -20,7 +20,6 @@ export function openSpec(opts: ViewOptions, token: string): OpenSpec {
         floatWidth: opts.floatSize?.width ?? 0.8,
         floatHeight: opts.floatSize?.height ?? 0.8,
         title: opts.title ?? opts.name,
-        border: "rounded",
         token,
         keys: mergeKeymap(opts.keymaps),
     };

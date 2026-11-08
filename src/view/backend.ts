@@ -27,7 +27,6 @@ export interface OpenSpec {
     floatWidth: number;
     floatHeight: number;
     title: string;
-    border: string;
     token: string;
     keys: Array<[string, KeyAction]>;
 }

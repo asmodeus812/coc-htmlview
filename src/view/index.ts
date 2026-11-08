@@ -84,7 +84,7 @@ export interface ViewOptions {
     splitCommand?: string;
     /** Float size as fractions of the editor (default `{width: 0.8, height: 0.8}`); ignored for `split`. */
     floatSize?: { width: number; height: number };
-    /** Window title (float border title / statusline); default `name`. */
+    /** Window title (float window bar / split statusline); default `name`. */
     title?: string;
     /** Highlighter for `layout.codeRegions`; absent = no syntax colours. */
     highlighter?: CodeHighlighter;

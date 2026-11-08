@@ -16,7 +16,6 @@ function luaOpenArgs(spec: OpenSpec): Record<string, unknown> {
         floatWidth: spec.floatWidth,
         floatHeight: spec.floatHeight,
         title: spec.title,
-        border: spec.border,
         token: spec.token,
         keys: spec.keys,
     };

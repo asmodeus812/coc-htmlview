@@ -182,14 +182,21 @@ test("view/lua: a second define overrides stylesheet groups; variable links keep
     assert.equal(user?.["HtmlViewVscodeX"].link, "Title");
 });
 
-test("view/lua: a reused float takes the new view's title", { skip: !HAS_NVIM }, () => {
-    const spec = "name = 'x', reuse = true, mode = 'float', floatWidth = 0.8, floatHeight = 0.8, border = 'rounded', keys = {}";
-    const res = runViewLua<{ title: string }>([
-        `M.open({ ${spec}, title = 'first', token = 'a' })`,
+test("view/lua: a float is borderless and shows the title in its window bar, also when reused", { skip: !HAS_NVIM }, () => {
+    const spec = "name = 'x', reuse = true, mode = 'float', floatWidth = 0.8, floatHeight = 0.8, keys = {}";
+    const res = runViewLua<{ border: unknown; first: string; second: string; width: number }>([
+        `local a = M.open({ ${spec}, title = 'first', token = 'a' })`,
+        "res.first = vim.wo[a.winid].winbar",
         `local o = M.open({ ${spec}, title = 'second', token = 'b' })`,
-        "res.title = vim.api.nvim_win_get_config(o.winid).title[1][1]",
+        "local cfg = vim.api.nvim_win_get_config(o.winid)",
+        "res.border = cfg.border",
+        "res.width = cfg.width",
+        "res.second = vim.wo[o.winid].winbar",
     ]);
-    assert.equal(res?.title, " second ");
+    assert.equal(res?.first, " first");
+    assert.equal(res?.second, " second");
+    assert.ok(res?.border === undefined || res.border === "none" || (Array.isArray(res.border) && res.border.every((c) => c === "")));
+    assert.equal(res?.width, Math.floor(80 * 0.8));
 });
 
 test("view/lua: float text uses NormalFloat's background, a split is unchanged", { skip: !HAS_NVIM }, () => {
@@ -223,7 +230,7 @@ test("view/lua: float text uses NormalFloat's background, a split is unchanged",
 
 test("view/lua: setting 'background' is watched like ColorScheme", { skip: !HAS_NVIM }, () => {
     const res = runViewLua<{ count: number }>([
-        "local o = M.open({ name = 'x', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', border = 'rounded', token = 'a', keys = {} })",
+        "local o = M.open({ name = 'x', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', token = 'a', keys = {} })",
         "res.count = #vim.api.nvim_get_autocmds({ group = 'htmlview_' .. o.bufnr, event = 'OptionSet', pattern = 'background' })",
     ]);
     assert.equal(res?.count, 1);

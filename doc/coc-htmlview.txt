@@ -54,14 +54,14 @@ width.
 
 SPLIT AND FLOAT
 
-A view opens in a centred floating window with a rounded border and the
-view's title, 80% of the editor's width and height (the default), or in a
-split, made with the configured split command (default `botright vsplit`).
-The calling extension may choose; otherwise your `htmlview.view.mode` setting
-decides. A split shows the view's title in its status line. The text in a
-float follows the float's background: in the float, `Normal` and
-`HtmlViewHostCanvas` are `NormalFloat` (a window-local highlight namespace;
-splits keep `Normal`). Vim always splits.
+A view opens in a centred floating window without a border, 80% of the
+editor's width and height (the default), or in a split, made with the
+configured split command (default `botright vsplit`). The calling extension
+may choose; otherwise your `htmlview.view.mode` setting decides. A float
+shows the view's title in its window bar ('winbar'), a split in its status
+line. The text in a float follows the float's background: in the float,
+`Normal` and `HtmlViewHostCanvas` are `NormalFloat` (a window-local
+highlight namespace; splits keep `Normal`). Vim always splits.
 
 BUFFER NAMES AND REUSE
 
@@ -138,8 +138,8 @@ the |coc-htmlview-api-view| once the view shows the first content.
                   Default: the user's `htmlview.view.splitCommand`.
                 • `reuse`?: reuse the buffer and window of an earlier view
                   with the same name. Default `false`.
-                • `title`?: title of the float and of the split's status
-                  line. Default: `name`.
+                • `title`?: title of the float's window bar and of the split's
+                  status line. Default: `name`.
 `stylesheets`?  CSS file paths in cascade order. Use absolute paths. The
                 user's `htmlview.stylesheets` come after them. An unreadable
                 path is skipped. Files are re-read when they change.
