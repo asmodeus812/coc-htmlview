@@ -58,8 +58,10 @@ A view opens in a centred floating window with a rounded border and the
 view's title, 80% of the editor's width and height (the default), or in a
 split, made with the configured split command (default `botright vsplit`).
 The calling extension may choose; otherwise your `htmlview.view.mode` setting
-decides. A split shows the view's title in its status line. Vim always
-splits.
+decides. A split shows the view's title in its status line. The text in a
+float follows the float's background: in the float, `Normal` and
+`HtmlViewHostCanvas` are `NormalFloat` (a window-local highlight namespace;
+splits keep `Normal`). Vim always splits.
 
 BUFFER NAMES AND REUSE
 
@@ -259,7 +261,7 @@ Every theme colour comes from a role group. Each one links to the first
 group of its chain that your colorscheme defines:
 
     Group                          Default link chain ~
-    HtmlViewHostCanvas             Normal
+    HtmlViewHostCanvas             Normal (NormalFloat in a float)
     HtmlViewHostCodeBlock          ColorColumn, CursorLine
     HtmlViewHostInlineCode         @markup.raw, Special, String
     HtmlViewHostKbd                @markup.raw, Special

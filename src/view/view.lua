@@ -65,6 +65,18 @@ local function set_win_opts(win, title, float)
     end
 end
 
+-- A float's text follows the float's background: in a window-local highlight namespace Normal and the canvas
+-- role group are NormalFloat. A split uses the global namespace (0). pcall: nvim_win_set_hl_ns needs Neovim 0.10.
+local function set_win_theme(win, float)
+    local ns = 0
+    if float then
+        ns = api.nvim_create_namespace('htmlview_float')
+        api.nvim_set_hl(ns, 'Normal', { link = 'NormalFloat' })
+        api.nvim_set_hl(ns, 'HtmlViewHostCanvas', { link = 'NormalFloat' })
+    end
+    pcall(api.nvim_win_set_hl_ns, win, ns)
+end
+
 local function float_config(o)
     local cols, rows = vim.o.columns, vim.o.lines - vim.o.cmdheight
     local width = math.max(20, math.floor(cols * o.floatWidth))
@@ -113,6 +125,7 @@ local function open_window(buf, o)
         api.nvim_win_set_buf(win, buf)
     end
     set_win_opts(win, o.title, o.mode == 'float')
+    set_win_theme(win, api.nvim_win_get_config(win).relative ~= '')
     return win
 end
 

@@ -192,6 +192,35 @@ test("view/lua: a reused float takes the new view's title", { skip: !HAS_NVIM },
     assert.equal(res?.title, " second ");
 });
 
+test("view/lua: float text uses NormalFloat's background, a split is unchanged", { skip: !HAS_NVIM }, () => {
+    const body = (mode: string): string[] => [
+        "vim.cmd('hi Normal guibg=#101010 guifg=#cccccc | hi NormalFloat guibg=#303050')",
+        "M.define({ { name = 'HtmlViewHostCanvas', link = 'Normal' } })",
+        `local o = M.open({ name = 'x', reuse = false, mode = '${mode}', splitCommand = 'vsplit', floatWidth = 0.8, floatHeight = 0.8, title = 't', token = 'a', keys = {} })`,
+        "vim.api.nvim_set_option_value('modifiable', true, { buf = o.bufnr })",
+        "vim.api.nvim_buf_set_lines(o.bufnr, 0, -1, false, { 'hello', '' })",
+        "vim.api.nvim_buf_set_extmark(o.bufnr, vim.api.nvim_create_namespace('t'), 0, 0, { end_col = 5, hl_group = 'HtmlViewHostCanvas' })",
+        "vim.cmd('redraw')",
+        "local pos = vim.fn.win_screenpos(o.winid)",
+        "local row = pos[1] - 1 + (vim.api.nvim_win_get_config(o.winid).relative ~= '' and 1 or 0)",
+        "res.ns = vim.api.nvim_get_hl_ns({ winid = o.winid })",
+        "res.text = vim.fn.screenattr(row + 1, pos[2])",
+        "res.blank = vim.fn.screenattr(row + 2, pos[2] + 3)",
+        "res.global = vim.api.nvim_get_hl(0, { name = 'HtmlViewHostCanvas' }).link",
+    ];
+    type Probe = { ns: number; text: number; blank: number; global: string };
+    const float = runViewLua<Probe>(body("float"));
+    const split = runViewLua<Probe>(body("split"));
+    assert.ok(float !== undefined && split !== undefined);
+    // float: the canvas-grouped text has the cell attributes of the float's own blank cells (NormalFloat)
+    assert.notEqual(float.ns, 0);
+    assert.equal(float.text, float.blank);
+    // split: global namespace, canvas group still Normal
+    assert.equal(split.ns, 0);
+    assert.notEqual(split.text, split.blank);
+    assert.equal(float.global, "Normal");
+});
+
 test("view/lua: setting 'background' is watched like ColorScheme", { skip: !HAS_NVIM }, () => {
     const res = runViewLua<{ count: number }>([
         "local o = M.open({ name = 'x', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', border = 'rounded', token = 'a', keys = {} })",
