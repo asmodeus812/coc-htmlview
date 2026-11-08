@@ -1,0 +1,149 @@
+/*
+ * htmlview engine user-agent sheet (origin ua, cascades first): the browser's html.css (Firefox's, which the oracle
+ * runs) plus VS Code's webview default styles (the host layer every webview gets), adapted to a character grid.
+ *
+ * Units: 1em vertical = 1 line, horizontal lengths in ch = cells (style.lengthToCells). Layout reads computed
+ * style only, never tags; the engine's layout hints are the --htmlview-* custom properties of style/index.ts
+ * LayoutHint (not inherited). Every colour is a host variable of style/host.ts (VS Code ids where VS Code has
+ * one, else --htmlview-*), backed by a role group linked to native groups, so the sheet follows the colorscheme.
+ *
+ * Terminal adaptations (deliberate differences from the browser, listed in style/oracle.test.ts):
+ * font sizes become colours and markers (headings, small); table cells and tables get borders (FloatBorder);
+ * blockquotes a bar; hr one horizontal rule; pre a code background; mark the Search group; list indents are 3
+ * cells instead of 40px; body has no 20px side padding; form controls are not rendered (radio/checkbox are
+ * toggles through labels).
+ */
+
+/* ---- display (html.css) ---- */
+html, body, address, article, aside, blockquote, center, details, dialog, dd, dir, div, dl, dt, fieldset,
+figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, legend, main, menu, nav, ol, p,
+pre, search, section, ul, listing, plaintext, xmp, optgroup { display: block; }
+head, script, style, template, title, link, meta, base, basefont, noscript, datalist, area, param, noembed,
+noframes, input[type="hidden"], dialog:not([open]) { display: none; }
+[hidden] { display: none; }
+li { display: list-item; }
+summary { display: list-item; list-style: disclosure-closed inside; counter-increment: list-item 0; }
+details[open] > summary { list-style-type: disclosure-open; }
+table { display: table; }
+caption { display: table-caption; text-align: center; }
+thead { display: table-header-group; }
+tbody { display: table-row-group; }
+tfoot { display: table-footer-group; }
+tr { display: table-row; }
+td, th { display: table-cell; }
+col { display: table-column; }
+colgroup { display: table-column-group; }
+ruby { display: ruby; }
+rt { display: ruby-text; }
+img { --htmlview-replaced: alt; }
+input[type="radio"], input[type="checkbox"] { display: none; --htmlview-toggle: control; }
+input, select, textarea, button, meter, progress { display: none; }
+label[for] { --htmlview-toggle: label; }
+br { --htmlview-break: line; }
+wbr { --htmlview-break: opportunity; }
+
+/* ---- the canvas (VS Code webview defaults: body text from the editor, no own background) ---- */
+body { color: var(--vscode-editor-foreground); background-color: transparent; margin: 0; padding: 0; }
+
+/* ---- vertical rhythm: 1em = 1 line ---- */
+p, dl, figure, pre, ul, ol, menu, dir, details, listing, plaintext, xmp, multicol { margin-top: 1em; margin-bottom: 1em; }
+blockquote { margin: 1em 2ch; }
+figure { margin-left: 4ch; margin-right: 4ch; }
+h1, h2, h3, h4, h5, h6 { margin-top: 1em; margin-bottom: 1em; }
+hr { margin: 1em 0; }
+/* nested lists have no top/bottom margins */
+ul ul, ul ol, ul dl, ul menu, ol ul, ol ol, ol dl, ol menu, dl ul, dl ol, dl dl, dl menu,
+menu ul, menu ol, menu dl, menu menu { margin-top: 0; margin-bottom: 0; }
+
+/* ---- indents, in cells ---- */
+ul, ol, menu, dir { padding-left: 3ch; }
+dd { margin-left: 4ch; }
+
+/* ---- lists ---- */
+ul, ol, menu, dir { counter-reset: list-item; }
+ul, menu, dir { list-style-type: disc; }
+ol { list-style-type: decimal; }
+ol[type="1"] { list-style-type: decimal; }
+ol[type="a"] { list-style-type: lower-alpha; }
+ol[type="A"] { list-style-type: upper-alpha; }
+ol[type="i"] { list-style-type: lower-roman; }
+ol[type="I"] { list-style-type: upper-roman; }
+/* 2 deep unordered lists use a circle, 3 deep (or more) a square */
+ol ul, ul ul, menu ul, dir ul, ol menu, ul menu, menu menu, ol dir, ul dir { list-style-type: circle; }
+ol ol ul, ol ul ul, ul ol ul, ul ul ul, ol ol menu, ol ul menu, ul ol menu, ul ul menu { list-style-type: square; }
+li::marker { color: var(--htmlview-list-marker); }
+
+/* ---- text-level semantics ---- */
+b, strong { font-weight: bolder; }
+th { font-weight: bold; }
+em, i, cite, var, dfn, address { font-style: italic; }
+u, ins { text-decoration: underline; }
+s, del, strike { text-decoration: line-through; }
+abbr[title], acronym[title] { text-decoration: underline; }
+a { color: var(--vscode-textLink-foreground); }
+a[href] { text-decoration: underline; --htmlview-link: href; }
+p > a { text-decoration: none; }
+code, samp, tt, kbd {
+  color: var(--vscode-textPreformat-foreground);
+  background-color: var(--vscode-textPreformat-background);
+}
+a code { color: var(--vscode-textPreformat-foreground); text-decoration: underline; }
+pre code { background-color: transparent; padding: 0; }
+kbd {
+  color: var(--vscode-keybindingLabel-foreground);
+  background-color: var(--vscode-keybindingLabel-background);
+  border: 1px solid var(--vscode-keybindingLabel-border);
+  border-bottom-color: var(--vscode-keybindingLabel-bottomBorder);
+}
+mark {
+  color: var(--htmlview-mark-foreground);
+  background-color: var(--vscode-editor-findMatchHighlightBackground);
+}
+small, sub, sup { color: var(--vscode-descriptionForeground); }
+q::before { content: open-quote; }
+q::after { content: close-quote; }
+nobr { white-space: nowrap; }
+center { text-align: center; }
+
+/* ---- sections: font size becomes a colour and a marker ---- */
+h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+h1 { color: var(--htmlview-heading-1-foreground); --htmlview-heading: 1; }
+h2 { color: var(--htmlview-heading-2-foreground); --htmlview-heading: 2; }
+h3 { color: var(--htmlview-heading-3-foreground); --htmlview-heading: 3; }
+h4 { color: var(--htmlview-heading-4-foreground); --htmlview-heading: 4; }
+h5 { color: var(--htmlview-heading-5-foreground); --htmlview-heading: 5; }
+h6 { color: var(--htmlview-heading-6-foreground); --htmlview-heading: 6; }
+h1::before { content: "\25C9  "; }
+h2::before { content: "\25C6  "; }
+h3::before { content: "\25B8  "; }
+h4::before { content: "\25B9  "; }
+h5::before { content: "\2023  "; }
+h6::before { content: "\2022  "; }
+
+/* ---- grouping content ---- */
+pre, listing, plaintext, xmp {
+  white-space: pre;
+  background-color: var(--vscode-textCodeBlock-background);
+  padding: 0 1ch;
+  --htmlview-code: block;
+}
+blockquote {
+  color: var(--htmlview-quote-foreground);
+  background-color: var(--vscode-textBlockQuote-background);
+  padding-left: 1ch;
+  border-left: 1px solid var(--vscode-textBlockQuote-border);
+}
+hr { border: 0; border-top: 1px solid var(--htmlview-border); }
+
+/* ---- tables ---- */
+table { border: 1px solid var(--htmlview-table-border); }
+td, th { padding: 0 1ch; border: 1px solid var(--htmlview-table-border); }
+th { color: var(--htmlview-table-header-foreground); text-align: left; }
+caption { color: var(--htmlview-caption-foreground); }
+
+/* ---- highlight.js tokens an author sheet may leave unstyled (vs.css colours the rest) ---- */
+.hljs-number { color: var(--vscode-debugTokenExpression-number); }
+.hljs-operator { color: var(--vscode-symbolIcon-operatorForeground); }
+.hljs-punctuation { color: var(--htmlview-syntax-punctuation); }
+.hljs-params, .hljs-property { color: var(--vscode-symbolIcon-variableForeground); }
+.hljs-regexp { color: var(--vscode-debugTokenExpression-string); }
