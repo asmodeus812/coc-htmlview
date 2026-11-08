@@ -179,3 +179,16 @@ test("engine/style: hljs token rules define groups although no element matches t
     assert.equal(group("HtmlViewHljsB")?.bold, true);
     assert.equal(group("HtmlViewDivHljsC"), undefined);
 });
+
+test("engine/style: align-items normalises its keywords, is not inherited and starts at normal", () => {
+    const t = render(
+        '<div id="a"><p id="p">x</p></div><div id="b"></div><div id="c"></div><div id="d"></div><div id="e"></div>',
+        "#a{align-items:center} #b{align-items:flex-end} #c{align-items:FLEX-START} #d{align-items:stretch} #e{align-items:bogus}",
+    );
+    assert.equal(el(t, "a").style.alignItems, "center");
+    assert.equal(el(t, "p").style.alignItems, "normal", "not inherited");
+    assert.equal(el(t, "b").style.alignItems, "end");
+    assert.equal(el(t, "c").style.alignItems, "start");
+    assert.equal(el(t, "d").style.alignItems, "stretch");
+    assert.equal(el(t, "e").style.alignItems, "normal", "invalid value is dropped");
+});

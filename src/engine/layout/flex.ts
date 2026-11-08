@@ -25,7 +25,7 @@ function defaultStyleOf(): ComputedStyle {
         display: "block", visibility: "visible", margin: zero, padding: zero, border: { top: none, right: none, bottom: none, left: none },
         color: { hex: "#000000", alpha: 0 }, backgroundColor: { hex: "#000000", alpha: 0 }, fontWeight: 400, fontStyle: "normal",
         textDecoration: { underline: false, lineThrough: false, overline: false }, whiteSpace: "normal", tabSize: 0, textAlign: "left", textTransform: "none",
-        listStyleType: "none", listStylePosition: "outside", order: 0, fill: false, counterReset: [], counterIncrement: [], counterSet: [], custom: {},
+        listStyleType: "none", listStylePosition: "outside", order: 0, alignItems: "normal", fill: false, counterReset: [], counterIncrement: [], counterSet: [], custom: {},
     };
 }
 
@@ -74,13 +74,19 @@ export function maxContent(opts: Opts, box: Box, depth: number): number {
     return content + margins;
 }
 
+/** The height of a flex item in its row: its lines plus its vertical margins. */
+function outerHeight(it: Box, f: Fragment): number {
+    return Math.max(0, it.style.margin.top) + f.lines.length + Math.max(0, it.style.margin.bottom);
+}
+
 /**
  * The row of a flex container (`flex-direction: row`) inside its content box `[cx, cx + cw)`: every item at its
  * shrink-to-fit width (max-content capped at `cw`), side by side with {@link flexGap} between them, wrapping onto a
  * new row when the next item does not fit. Wrapping happens with `flex-wrap: nowrap` too (style does not compute
  * flex-wrap, and a cell grid cannot shrink text or show an overflow). Items go in `order` (ties: document order), and
  * one with `width: 100%` takes a row of its own. Item margins do not collapse: a row is as
- * tall as its tallest item plus that item's vertical margins.
+ * tall as its tallest item plus that item's vertical margins. `align-items` places a shorter item in a row at the top
+ * (`normal`, `stretch`, `start`: text cannot stretch in a cell grid), the middle (`center`, rounding down) or the bottom (`end`).
  */
 function flexRow(box: FlexRowBox): InnerPlacer {
     return (run: Run, cx: number, cw: number, kids: number): PlacedBox[] => {
@@ -89,31 +95,42 @@ function flexRow(box: FlexRowBox): InnerPlacer {
         const frags: Fragment[] = items.map((it: Box, i: number): Fragment => fragment(run.opts, [it], fits[i], kids));
         let placed: PlacedBox[] = [];
         if (frags.some((f: Fragment): boolean => f.lines.length > 0)) {
-            let line: number = flush(run);
+            // pass 1: the rows (greedy wrap) and their heights; pass 2: blit each item, offset by `align-items`
+            const rows: Array<{ at: number[]; cols: number[]; height: number }> = [];
             let col: number = cx;
-            let height: number = 0;
             let prev: Box | undefined;
             frags.forEach((f: Fragment, i: number): void => {
                 const it: Box = items[i];
                 if (f.lines.length > 0) {
                     const gap: number = prev !== undefined ? flexGap(prev, it) : 0;
-                    if (col > cx && col + gap + fits[i] > cx + cw) {
-                        line += height;
+                    if (rows.length === 0 || (col > cx && col + gap + fits[i] > cx + cw)) {
+                        rows.push({ at: [], cols: [], height: 0 });
                         col = cx;
-                        height = 0;
                     } else {
                         col += gap;
                     }
-                    const top: number = Math.max(0, it.style.margin.top);
-                    blit(run, f, line + top, col);
+                    const row = rows[rows.length - 1];
+                    row.at.push(i);
+                    row.cols.push(col);
                     col += fits[i];
-                    height = Math.max(height, top + f.lines.length + Math.max(0, it.style.margin.bottom));
-                    placed = placed.concat(f.placed);
+                    row.height = Math.max(row.height, outerHeight(it, f));
                     prev = it;
                 }
             });
-            ensureLine(run, line + height - 1);
-            run.y = line + height;
+            let line: number = flush(run);
+            const align: ComputedStyle["alignItems"] = box.style.alignItems;
+            rows.forEach((row): void => {
+                row.at.forEach((i: number, k: number): void => {
+                    const it: Box = items[i];
+                    const free: number = row.height - outerHeight(it, frags[i]);
+                    const shift: number = align === "center" ? Math.floor(free / 2) : align === "end" ? free : 0;
+                    blit(run, frags[i], line + Math.max(0, it.style.margin.top) + shift, row.cols[k]);
+                    placed = placed.concat(frags[i].placed);
+                });
+                line += row.height;
+            });
+            ensureLine(run, line - 1);
+            run.y = line;
         }
         return placed;
     };

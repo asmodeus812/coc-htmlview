@@ -69,6 +69,11 @@ export type Display =
     | "contents";
 
 export type WhiteSpace = "normal" | "nowrap" | "pre" | "pre-wrap" | "pre-line";
+/**
+ * `align-items` of a flex row, normalised: `start` (flex-start, self-start, baseline), `center`, `end` (flex-end,
+ * self-end); `normal` and `stretch` lay out as `start` (text cannot be stretched in a cell grid).
+ */
+export type AlignItems = "normal" | "stretch" | "start" | "center" | "end";
 export type TextAlign = "left" | "right" | "center" | "justify";
 export type BorderStyle = "none" | "solid" | "dashed" | "dotted" | "double";
 export type Visibility = "visible" | "hidden" | "collapse";
@@ -159,6 +164,8 @@ export interface ComputedStyle {
     listStylePosition: ListStylePosition;
     /** `order` (flex items; the row is laid out in ascending order, ties in document order). */
     order: number;
+    /** `align-items` (a flex container: where its items sit vertically in a row; not inherited, initial `normal`). */
+    alignItems: AlignItems;
     /** `width: 100%` (a flex item with it takes a row of its own). */
     fill: boolean;
     /** `content` (pseudo-elements only; `normal`/`none` = undefined). `::marker` default content is layout's. */
@@ -267,6 +274,7 @@ export function initialStyle(): ComputedStyle {
         listStyleType: "disc",
         listStylePosition: "outside",
         order: 0,
+        alignItems: "normal",
         fill: false,
         content: undefined,
         counterReset: [],

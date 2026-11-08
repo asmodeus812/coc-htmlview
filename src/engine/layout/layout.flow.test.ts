@@ -189,3 +189,25 @@ test("engine/layout: table cells wrap within fitted columns, tall body rows are 
     const out: Layout = layOut(docRoot(k, [k.el("table", { display: "table", border: box4(solid()) }, [row("日本", "one two three four"), row("x", "y")])]), k, { width: 16 });
     assert.deepEqual(out.lines, ["┌─────┬────────┐", "│ 日  │ one    │", "│ 本  │ two    │", "│     │ three  │", "│     │ four   │", "├─────┼────────┤", "│ x   │ y      │", "└─────┴────────┘"]);
 });
+
+test("engine/layout: align-items places a short flex item at the top (default), middle or bottom of its row", () => {
+    const rowOf = (alignItems?: ComputedStyle["alignItems"]): string[] => {
+        const k: Kit = kit();
+        const tall = k.el("span", { display: "block", border: box4(solid()) }, ["Hi"]);
+        const flex = k.el("div", { display: "flex", ...(alignItems !== undefined ? { alignItems } : {}) }, [k.el("span", B, ["x"]), tall]);
+        return layOut(docRoot(k, [flex]), k).lines;
+    };
+    assert.deepEqual(rowOf(), ["x ┌──┐", "  │Hi│", "  └──┘"]);
+    assert.deepEqual(rowOf("center"), ["  ┌──┐", "x │Hi│", "  └──┘"]);
+    assert.deepEqual(rowOf("end"), ["  ┌──┐", "  │Hi│", "x └──┘"]);
+    for (const a of ["normal", "stretch", "start"] as const) {
+        assert.deepEqual(rowOf(a), rowOf(), a);
+    }
+});
+
+test("engine/layout: align-items center rounds down in an odd gap", () => {
+    const k: Kit = kit();
+    const tall = k.el("div", { display: "block" }, [k.el("p", { display: "block" }, ["a"]), k.el("p", { display: "block" }, ["b"])]);
+    const flex = k.el("div", { display: "flex", alignItems: "center" }, [k.el("span", B, ["x"]), tall]);
+    assert.deepEqual(layOut(docRoot(k, [flex]), k).lines, ["x a", "  b"]);
+});

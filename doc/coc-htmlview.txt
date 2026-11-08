@@ -221,8 +221,8 @@ SUPPORTED CSS
   `text-decoration-color`, `white-space`, `tab-size`, `text-align`,
   `text-transform`, `list-style-type`, `list-style-position`, `content`,
   `counter-reset`, `counter-increment`, `counter-set`, `flex-direction`,
-  `order` and `width`. Shorthands: `margin`, `padding`, `border`,
-  `border-width`, `border-style`, `border-color`, `border-top` (and
+  `align-items`, `order` and `width`. Shorthands: `margin`, `padding`,
+  `border`, `border-width`, `border-style`, `border-color`, `border-top` (and
   `-right`, `-bottom`, `-left`), `margin-block`, `margin-inline`,
   `padding-block`, `padding-inline`, `background` (sets the colour only),
   `font` (sets weight and style only), `list-style`, `text-decoration` and
@@ -437,7 +437,10 @@ The keys are the same.
 • Backgrounds of non-code elements cover their text, not the full box.
 • `rowspan` is ignored in tables.
 • Flex is row only: `flex-wrap`, `gap` and `inline-flex` are not computed,
-  so `nowrap` wraps too.
+  so `nowrap` wraps too. `align-items` places a shorter item at the top
+  (`flex-start`, `start`, `normal`, `stretch`), in the middle (`center`,
+  rounded down) or at the bottom (`flex-end`, `end`) of its row; `stretch`
+  cannot stretch text in a grid, so it is the top.
 • No fonts or font sizes; a weight of 600 or more is bold.
 • Form controls other than radio and checkbox are not shown; images show
   their `alt` text.

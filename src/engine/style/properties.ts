@@ -4,7 +4,7 @@
  * `currentcolor`, `bolder` — is applied by compute.ts). Unknown properties expand to nothing (ignored, as a
  * browser ignores what it does not render); malformed values return `undefined` (the declaration is dropped).
  */
-import type { BorderStyle, ContentItem, CounterOp, Display, ListStylePosition, ListStyleType, TextAlign, Visibility, WhiteSpace } from "./index";
+import type { AlignItems, BorderStyle, ContentItem, CounterOp, Display, ListStylePosition, ListStyleType, TextAlign, Visibility, WhiteSpace } from "./index";
 import { lengthToCells } from "./index";
 import type { HostVarTable } from "./host";
 import type { Length, ParsedColor } from "./values";
@@ -39,6 +39,7 @@ const LONGHANDS: readonly string[] = [
     "flex-direction",
     "order",
     "width",
+    "align-items",
 ];
 
 const LONGHAND_SET: ReadonlySet<string> = new Set<string>(LONGHANDS);
@@ -473,6 +474,16 @@ export function parseValue(longhand: string, value: string, hostVars: HostVarTab
         out = parseCounterOps(value, 1);
     } else if (longhand === "flex-direction") {
         out = keyword<string>(value, ["row", "row-reverse", "column", "column-reverse"]);
+    } else if (longhand === "align-items") {
+        // only the cross-axis position of a row item matters to a cell grid: top, middle or bottom
+        out = keyword<AlignItems>(value, ["normal", "stretch", "start", "center", "end"], {
+            "flex-start": "start",
+            "self-start": "start",
+            baseline: "start",
+            "first baseline": "start",
+            "flex-end": "end",
+            "self-end": "end",
+        });
     } else if (longhand === "order") {
         out = /^[+-]?\d+$/.test(value.trim()) ? Number(value.trim()) : undefined;
     } else if (longhand === "width") {

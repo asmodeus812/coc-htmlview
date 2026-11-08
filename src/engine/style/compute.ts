@@ -33,6 +33,7 @@ import type {
 } from "./index";
 import { initialStyle, LayoutHint, UA_SHEET } from "./index";
 import { blockify, displayOf, expandDeclaration, INHERITED, parseValue, SIDES } from "./properties";
+import type { AlignItems } from "./index";
 import type { DecorationLine, DisplayValue, ParsedValue, Side } from "./properties";
 import { counterText, hasVar, markerText, resolveCustom, substitute, wideKeyword } from "./values";
 import { hostGroupDefs, newBook, paintFor } from "./groups";
@@ -285,6 +286,7 @@ function cascade(run: Run, matched: readonly MatchedDeclaration[], parent: Compu
         listStyleType: pick("list-style-type", ps.listStyleType, init.listStyleType, (v: ParsedValue) => v as ListStyleType),
         listStylePosition: pick("list-style-position", ps.listStylePosition, init.listStylePosition, (v: ParsedValue) => v as ComputedStyle["listStylePosition"]),
         order: pick<number>("order", 0, 0, (v: ParsedValue) => Number(v)),
+        alignItems: pick<AlignItems>("align-items", ps.alignItems, "normal", (v: ParsedValue) => v as AlignItems),
         fill: pick<boolean>("width", false, false, (v: ParsedValue) => v === "fill"),
         content,
         counterReset: counters("counter-reset", ps.counterReset),
