@@ -9,6 +9,20 @@ extension authors who have HTML to show (rule descriptions, release notes,
 documentation pages) and for users who want to read that HTML inside the
 editor instead of a browser.
 
+## Screenshots
+
+![A release-notes page rendered in a float titled "Harbor 2.4"](docs/screenshots/hero.png)
+*A complex HTML page (headings, cards, lists, content-sized table) in a Neovim float, `habamax` colours.*
+
+![A blog article in a float: site header, byline, figure, lists, quote](docs/screenshots/article.png)
+*A traditional web page (header, nav, article) in a float titled "Article".*
+
+![The article in a split next to a Lua file](docs/screenshots/article-split.png)
+*The same page in a split beside a code file (`retrobox`).*
+
+![The article with a light colorscheme](docs/screenshots/article-light.png)
+*The same page with `background=light` and the default colorscheme.*
+
 ## Features
 
 - A real CSS cascade: a built-in user-agent sheet, your stylesheets, the
