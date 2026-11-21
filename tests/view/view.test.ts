@@ -8,7 +8,7 @@ import { byteToCell } from "../../src/common";
 import { blendHex, type HlSpec, toExtmarks, toHlSpec, vimHiCommand } from "../../src/view/convert";
 import VIEW_LUA from "../../src/view/view.lua";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { adjacentAnchor, adjacentContext, adjacentLink, buildRequest, linkAt, mergeKeymap, resolveKey } from "../../src/view/keys";
@@ -471,4 +471,34 @@ test("view/lua: view.lua is valid Lua", (t) => {
     } else {
         assert.equal(check.status, 0, check.stderr);
     }
+});
+
+test("render: prepass, lang and linkTargets reach the update end to end", async () => {
+    const nvim = new FakeNvim(true);
+    const html = "<p>x <a href='https://e.x'>go</a></p><pre><code>let a = 1</code></pre>";
+    await renderOn(nvim as unknown as Neovim, html, { linkTargets: true, lang: "rust", prepass: (h: string) => h.replace("x", "PRE"), view: { mode: "split", name: "p", reuse: false } }, { log: () => undefined });
+    const up = nvim.named("lua", "update")[0].args;
+    assert.deepEqual((up[3] as string[]).slice(0, 2), ["PRE go", ""]);
+    assert.deepEqual((up[6] as { virt: unknown[][] }).virt.map((v: unknown[]) => [v[0], v[1], v[2], v[6]]), [[0, 6, "inline", "link-target"]]);
+    assert.ok(nvim.calls.some((c) => JSON.stringify(c.args).includes('"lang":"rust"')), "the code region carries the default lang");
+    const plain = new FakeNvim(true);
+    await renderOn(plain as unknown as Neovim, html, { view: { mode: "split", name: "q", reuse: false } }, { log: () => undefined });
+    assert.deepEqual((plain.named("lua", "update")[0].args[6] as { virt: unknown[] }).virt, [], "link targets are hidden by default");
+});
+
+test("render: an edited stylesheet is re-read on the next render (path + mtime cache)", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "htmlview-mtime-"));
+    const sheet = join(dir, "a.css");
+    const specsOf = async (): Promise<string> => {
+        const nvim = new FakeNvim(true);
+        await renderOn(nvim as unknown as Neovim, "<p>text</p>", { stylesheets: [sheet], view: { mode: "split", name: "m", reuse: false } }, { log: () => undefined });
+        return JSON.stringify(nvim.named("lua", "update")[0].args[4]).toLowerCase();
+    };
+    writeFileSync(sheet, "p { color: #ab0001 }");
+    assert.ok((await specsOf()).includes("#ab0001"));
+    writeFileSync(sheet, "p { color: #ab0002 }");
+    utimesSync(sheet, new Date(), new Date(Date.now() + 5000));
+    const second = await specsOf();
+    assert.ok(second.includes("#ab0002") && !second.includes("#ab0001"));
+    rmSync(dir, { recursive: true });
 });
