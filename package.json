@@ -75,15 +75,13 @@
       }
     }
   },
-  "dependencies": {
-    "css": "^3.0.0",
-    "highlight.js": "11.11.1",
-    "node-html-parser": "6.1.13"
-  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "coc.nvim": "^0.0.83-next.18",
+    "css": "^3.0.0",
     "esbuild": "^0.19.8",
+    "highlight.js": "11.11.1",
+    "node-html-parser": "6.1.13",
     "typescript": "^5.3.3"
   }
 }
