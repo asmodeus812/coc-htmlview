@@ -210,3 +210,41 @@ test("engine/style: literal border colours get their own fg-only group, variable
     assert.equal(groups.filter((g: string): boolean => g === "HtmlViewHostBorder").length, 4);
     assert.equal(tree.groups.filter((g: GroupDef): boolean => g.name.startsWith("HtmlViewBorder")).length, 2);
 });
+
+test("engine/style: sheet order UA → htmlview.stylesheets → caller sheets → document <style> → inline", () => {
+    const sources = [
+        { name: "user.css", text: "p{color:#000001;margin:0} #imp{color:#0000aa !important} .spec#spec{color:#0000bb}", origin: "author" as const },
+        { name: "caller.css", text: "p{color:#000002} #c,#s,#i{color:#000002} #spec{color:#0000cc}", origin: "author" as const },
+    ];
+    const html = "<style>#s,#i{color:#000003} #imp{color:#000003}</style><p id='u2'>a</p><p id='c'>b</p><p id='s'>c</p><p id='i' style='color:#000004'>d</p>" +
+        "<p id='imp' style='color:#000004'>e</p><p id='spec' class='spec'>f</p><blockquote id='ua'>g</blockquote>";
+    const t = computeStyles(parseDocument(html), parseSheets(sources), { themeKind: "dark", vars: defaultHostVars }, emptyFormState());
+    assert.deepEqual(el(t, "u2").style.color, hex("#000002"), "the caller's sheet follows htmlview.stylesheets");
+    assert.deepEqual(el(t, "s").style.color, hex("#000003"), "document <style> follows every given sheet");
+    assert.deepEqual(el(t, "i").style.color, hex("#000004"), "inline style is last");
+    assert.deepEqual(el(t, "imp").style.color, hex("#0000aa"), "an earlier !important beats later and inline normal");
+    assert.deepEqual(el(t, "spec").style.color, hex("#0000bb"), "specificity beats order across sheets");
+    assert.ok(el(t, "ua").style.margin.left > 0, "UA rules apply where no author rule does");
+    assert.equal(el(t, "u2").style.margin.top, 0, "an author rule beats the UA margin");
+});
+
+test("engine/style: unset resets a non-inherited property, initial resets an inherited one", () => {
+    const t = render('<div id="d"><p id="p">x</p><b id="b">y</b></div>', "#d{font-style:italic} #p{margin:unset;padding:1ch} #b{font-style:initial;padding:unset}");
+    assert.equal(el(t, "p").style.margin.top, 0);
+    assert.equal(el(t, "p").style.padding.left, 1);
+    assert.equal(el(t, "p").style.fontStyle, "italic");
+    assert.equal(el(t, "b").style.fontStyle, "normal");
+    assert.equal(el(t, "b").style.padding.left, 0);
+});
+
+test("engine/style: the body class follows the theme kind for vscode-light/dark selectors", () => {
+    const css = "body.vscode-light #x{color:#111111} body.vscode-dark #x{color:#eeeeee}";
+    assert.deepEqual(el(render('<p id="x">a</p>', css, "light"), "x").style.color, hex("#111111"));
+    assert.deepEqual(el(render('<p id="x">a</p>', css, "dark"), "x").style.color, hex("#eeeeee"));
+});
+
+test("engine/style: nested list counters with counters() and counter-set", () => {
+    const css = "ol{counter-reset:item} li{display:block;counter-increment:item} li::before{content:counters(item, \".\") \" \"} .jump{counter-set:item 9}";
+    const t = render('<ol><li id="a">a<ol><li id="b">b</li><li id="c" class="jump">c</li><li id="d">d</li></ol></li><li id="e">e</li></ol>', css);
+    assert.deepEqual(["a", "b", "c", "d", "e"].map((id: string) => el(t, id).before?.text), ["1 ", "1.1 ", "1.9 ", "1.10 ", "2 "]);
+});
