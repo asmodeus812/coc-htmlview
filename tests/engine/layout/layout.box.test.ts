@@ -44,6 +44,16 @@ test("engine/layout: left border only (blockquote) and a top-border rule (hr)", 
     assert.deepEqual(out.lines, ["│ quoted", "│ text", "│ here", "──────────"]);
 });
 
+test("engine/layout: a background fills the padding box, border cells stay untinted", () => {
+    const k: Kit = kit();
+    const card = k.el("div", { display: "block", border: box4(solid()), backgroundColor: { hex: "#336699", alpha: 1 } }, ["tint"], { paint: ["GBox"] });
+    const out: Layout = layOut(docRoot(k, [card]), k, { width: 8 });
+    assert.deepEqual(out.lines, ["┌──────┐", "│tint  │", "└──────┘"]);
+    const tint = out.marks.filter((m) => m.group === "GBox");
+    assert.deepEqual(tint.map((m) => [m.line, m.startCol]), [[1, 1]], "only the content line, from inside the left border");
+    assert.ok(tint.every((m) => m.endCol <= 7), "never over the right border");
+});
+
 test("engine/layout: inline paint groups become marks, inner elements higher priority", () => {
     const k: Kit = kit();
     const out: Layout = layOut(docRoot(k, [k.el("p", B, ["a ", k.el("b", I, ["x ", k.el("i", I, ["y"], { paint: ["G2"] })], { paint: ["G1"] })])]), k);

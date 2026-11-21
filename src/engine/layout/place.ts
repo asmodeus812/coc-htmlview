@@ -250,9 +250,14 @@ function finishBlock(run: Run, box: BlockBox | ListItemBox, top: number, bottom:
         }
     }
     if (box.paint.length > 0) {
-        for (let line = top; line <= bottom; line++) {
-            const end: number = bg ? Math.min(lineWidth(run, line), x + w) : lineWidth(run, line);
-            paintRange(run, box.paint, depth, { line, startCol: bg ? x : Math.min(cx, x + w), endCol: end });
+        // A background fills the padding box: a solid border covers it in a browser, so border cells stay untinted.
+        const first: number = bg ? top + (s.border.top.width > 0 ? 1 : 0) : top;
+        const last: number = bg ? bottom - (s.border.bottom.width > 0 ? 1 : 0) : bottom;
+        const left: number = x + (s.border.left.width > 0 ? 1 : 0);
+        const right: number = x + w - (s.border.right.width > 0 ? 1 : 0);
+        for (let line = first; line <= last; line++) {
+            const end: number = bg ? Math.min(lineWidth(run, line), right) : lineWidth(run, line);
+            paintRange(run, box.paint, depth, { line, startCol: bg ? left : Math.min(cx, x + w), endCol: end });
         }
     }
     drawBorders(run, s, top, bottom, x, w, childDepth(box, depth));
