@@ -1,5 +1,5 @@
 /**
- * Oracle check (CONTRACT.md acceptance 1, layout half): StyledTrees built from Firefox's computed styles
+ * Oracle check (README, Development: layout half): StyledTrees built from Firefox's computed styles
  * (tests/fixtures/oracle) over the fixture markup (node-html-parser, test-only glue), laid out by the
  * box engine; the buffer must show what those styles imply: every word once, block siblings on their own lines,
  * margins as blank lines, list markers, left borders. Lengths use the style part's mapping (px /8 h, /16 v); the

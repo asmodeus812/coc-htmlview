@@ -1,5 +1,5 @@
 /**
- * Firefox oracle (CONTRACT.md acceptance 1, the primary truth): for every fixture in
+ * Firefox oracle (README, Development: the primary truth): for every fixture in
  * tests/fixtures/oracle/, compute styles with the engine (UA sheet only, body `vscode-dark`) and compare with Firefox's computed styles per element: display, white-space, font-weight
  * (bold ⇔ ≥ 600), font-style, text-decoration-line, list-style-type, margins/padding/borders (non-zero ⇔
  * non-zero cells), colour SOURCES (a sentinel colour names the `--vscode-*` variable that fed it, a literal must

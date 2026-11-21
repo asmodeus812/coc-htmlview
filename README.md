@@ -129,9 +129,58 @@ overrides survive a colorscheme change are in `:help coc-htmlview-highlights`.
 ```sh
 npm ci
 npm run build     # lib/index.js and lib/api.d.ts
-npm test          # unit tests
+npm test          # unit tests (tests/ mirrors src/)
 npm run typecheck
 ```
+
+### How it works
+
+```
+html ─(caller pre-pass)─▶ dom ─▶ style (UA sheet, settings sheets, caller sheets,
+<style>, inline; cascade, var(), counters) ─▶ layout (boxes, inline flow, tables,
+flex rows, code regions, links) ─▶ highlight (treesitter, then highlight.js) ─▶ view
+```
+
+| Part | Folder | Role |
+|---|---|---|
+| dom | `src/engine/dom/` | HTML parsing: implied structure, auto-closing, raw-text elements, entities |
+| css | `src/engine/css/` | sheet and selector parsing, matching, cascade order |
+| style | `src/engine/style/` | computed styles, the user-agent sheet `ua.css`, host roles and highlight groups |
+| layout | `src/engine/layout/` | boxes and placement into lines, marks, links, anchors and virtual text |
+| interact | `src/engine/interact/` | `:checked` state of radio and checkbox tabs |
+| highlight | `src/highlight/` | code highlighting and the language table |
+| view | `src/view/` | the only Neovim-facing part: buffer, window, groups, extmarks, keys, refresh |
+| common | `src/common/` | the display-cell rules shared by every part |
+
+`src/api.ts` is the public contract (emitted as `lib/api.d.ts`); `src/render.ts`
+composes the pipeline, keeps the parsed document and restyles or lays out again
+when the view reports a resize, a tab switch or a colorscheme change.
+
+Conventions the parts rely on:
+
+- Everything but the view is pure data in, data out: no Neovim calls, no module
+  state, never throwing on real-world input (bad CSS drops the declaration, odd
+  HTML is repaired). Text is never dropped or duplicated, except inside
+  `display: none` and `visibility: hidden`.
+- Layout never looks at a tag name or class: it reads the computed `display` and
+  the `--htmlview-*` hints (`code`, `heading`, `link`, `replaced`, `toggle`,
+  `break`) that `ua.css` or a stylesheet sets.
+- Lines are 0-based; columns are display cells (2 for wide characters, 0 for
+  combining marks) everywhere except the view, which converts to UTF-8 bytes
+  for extmarks. CSS lengths become cells in style only (`ch` 1, `em` 1, `px`
+  /8 across and /16 down).
+- Mark priority grows with element depth, so inner elements and later rules
+  win; code tokens sit above styles.
+
+### Acceptance checks
+
+- **Golden snapshot:** `node scripts/golden/dump.mjs <dir>` renders the fixtures
+  in `tests/fixtures/` through the whole pipeline; diff two dumps to review
+  every visible change.
+- **Firefox oracle:** `tests/fixtures/oracle/*.json` holds Firefox's computed
+  styles for the fixtures, and the oracle tests require the engine to agree.
+  Re-capture after changing a fixture or `ua.css` with
+  `node scripts/oracle/capture.mjs [name ...]` (needs `firefox`).
 
 ## License
 

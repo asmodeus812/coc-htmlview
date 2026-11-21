@@ -16,7 +16,7 @@
  * A drawn border with a literal colour gets `HtmlViewBorder<rrggbb>` ({@link borderColorGroup}), fg only.
  * A {@link StyledElement} paints with `paint`: its matched rule groups in cascade order (lowest first), so a user
  * `:hi HtmlViewImpactHigh` overrides exactly what that rule styles, and nesting gives inheritance (inner marks
- * sit higher, see doc/CONTRACT.md "Coordinates").
+ * sit higher, see README, Development).
  *
  * Pure and synchronous; no nvim; never throws on bad values (the declaration is dropped).
  */

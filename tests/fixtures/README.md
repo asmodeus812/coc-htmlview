@@ -18,6 +18,6 @@ Hand-written HTML inputs for parse, style, layout and interaction tests. Load th
 `oracle/<name>.json` for every `edge-*` fixture: the computed styles headless Firefox gives each element with
 Firefox's own UA sheet and VS Code's webview default styles (no extra sheets), body class `vscode-dark`;
 `oracle/vars.json` maps every `--vscode-*` variable to the sentinel colour it was given. The engine's primary
-acceptance check (see `doc/CONTRACT.md`). Re-run after changing a fixture, from the repo root:
+acceptance check (see the README, Development). Re-run after changing a fixture, from the repo root:
 `node scripts/oracle/capture.mjs edge-entities edge-mixed-li edge-pre-in-li edge-wide-table edge-widths` (needs
 `firefox` on PATH; the header of the script has the details).
