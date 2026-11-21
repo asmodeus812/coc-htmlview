@@ -180,3 +180,35 @@ test("engine/dom: malformed HTML never throws", () => {
     }
     assert.doesNotThrow(() => parseDocument(undefined as unknown as string));
 });
+
+test("engine/dom: script, style and title are raw text and never leak elements or text into the body", () => {
+    const doc: DomDocument = parseDocument("<head><title>a &amp; <b>b</b></title><style>p > a::before{content:'&amp;'}</style></head><p>x</p><script>if (a<b) { document.write('<i>') }</script>");
+    assert.deepEqual(doc.styles, ["p > a::before{content:'&amp;'}"], "style text is raw: no entity decoding, no tags");
+    assert.equal(byTag(doc, "b").length + byTag(doc, "i").length + byTag(doc, "script").length + byTag(doc, "title").length, 0);
+    assert.equal(textOf(doc.body), "x");
+});
+
+test("engine/dom: misnested inline end tags keep every text once and in order", () => {
+    const doc: DomDocument = parseDocument("<p><b>1<i>2</b>3</i>4</p><p><em>a<strong>b</em>c</strong></p>");
+    assert.deepEqual(byTag(doc, "p").map(textOf), ["1234", "abc"]);
+    assert.equal(textOf(byTag(doc, "b")[0]), "12");
+});
+
+test("engine/dom: an end tag closing an outer inline reopens the inner one (adoption agency)", { skip: "known bug: <b>1<i>2</b>3</i> leaves 3 outside any <i>" }, () => {
+    const doc: DomDocument = parseDocument("<p><b>1<i>2</b>3</i>4</p>");
+    assert.deepEqual(byTag(doc, "i").map(textOf), ["2", "3"]);
+});
+
+test("engine/dom: only one leading newline after <pre> is dropped, CRLF counts as one", () => {
+    const doc: DomDocument = parseDocument("<pre>\r\nA</pre><pre>\n</pre><pre>x\ny</pre><pre>\n\n\nz</pre>");
+    assert.deepEqual(byTag(doc, "pre").map(textOf), ["A", "", "x\ny", "\n\nz"]);
+});
+
+test("engine/dom: a huge document parses in bounded time", () => {
+    const big: string = "<div>" + "<p>word <b>bold</b> &amp; text</p>".repeat(20000) + "</div>" + "<span>".repeat(5000);
+    const started: number = Date.now();
+    const doc: DomDocument = parseDocument(big);
+    assert.ok(Date.now() - started < 3000, "parse took " + (Date.now() - started) + " ms");
+    assert.equal(byTag(doc, "p").length, 20000);
+    assert.equal(byTag(doc, "span").length, 5000);
+});
