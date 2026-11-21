@@ -13,6 +13,7 @@
  * to variable groups); a selector list yields one group per member, identical definitions. Each host variable
  * gets `HtmlView<Pascal(var)>` linked to its role group (`host.ts`), each role group `HtmlViewHost<Role>`
  * links down its native chain. Inline `style=""` gets `HtmlViewInline<hash of its visual declarations>`.
+ * A drawn border with a literal colour gets `HtmlViewBorder<rrggbb>` ({@link borderColorGroup}), fg only.
  * A {@link StyledElement} paints with `paint`: its matched rule groups in cascade order (lowest first), so a user
  * `:hi HtmlViewImpactHigh` overrides exactly what that rule styles, and nesting gives inheritance (inner marks
  * sit higher, see doc/CONTRACT.md "Coordinates").
@@ -333,6 +334,21 @@ export function lengthToCells(value: number, unit: string, axis: "h" | "v", cont
 export function groupName(selectorOrVar: string): string {
     const words: string[] = selectorOrVar.match(/[A-Za-z0-9]+/g) || [];
     return "HtmlView" + words.map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
+}
+
+/**
+ * The group a drawn border with a literal colour paints with: `HtmlViewBorder<rrggbb>`, plus `A<alpha × 1000>`
+ * when translucent (`#8FCAEA` → `HtmlViewBorder8fcaea`, `rgba(250,220,121,.2)` → `HtmlViewBorderfadc79A200`).
+ * Defined fg-only with that colour (alpha blended by the view). Undefined for variable/group colours and for a
+ * fully transparent one (those keep the variable group or the plain border role group).
+ */
+export function borderColorGroup(color: Color): string | undefined {
+    let out: string | undefined;
+    if ("hex" in color && color.alpha > 0) {
+        const alpha: string = color.alpha < 1 ? "A" + String(Math.round(color.alpha * 1000)) : "";
+        out = "HtmlViewBorder" + color.hex.slice(1).toLowerCase() + alpha;
+    }
+    return out;
 }
 
 /**

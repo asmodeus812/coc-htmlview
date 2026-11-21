@@ -107,7 +107,8 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
 - virtText, virtLines and conceals are optional in `Layout`; layoutBoxes always fills them (possibly empty).
 - Every `paint` group name appears in `StyledTree.groups`; role groups `HtmlViewHost<Role>` link down their native
   chain (`host.ts`; borders → FloatBorder → WinSeparator → NonText; link URL → @markup.link.url → Underlined →
-  Directory). Literal CSS colours stay true colour, alpha blended by the view.
+  Directory). Literal CSS colours stay true colour, alpha blended by the view; a drawn border with a literal colour
+  paints with the fg-only `HtmlViewBorder<rrggbb>[A<alpha×1000>]` (`style.borderColorGroup`).
 - highlight: `highlightRegions` is pure and returns marks only inside the given regions, priority within the `code`
   band, groups only from `groupForClass`; `treesitterRegions` never throws (returns `handled: []` on Vim or failure)
   and only touches region lines in the given namespace.

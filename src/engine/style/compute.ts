@@ -36,7 +36,7 @@ import { blockify, displayOf, expandDeclaration, INHERITED, parseValue, SIDES } 
 import type { AlignItems } from "./index";
 import type { DecorationLine, DisplayValue, ParsedValue, Side } from "./properties";
 import { counterText, hasVar, markerText, resolveCustom, substitute, wideKeyword } from "./values";
-import { hostGroupDefs, newBook, paintFor } from "./groups";
+import { borderGroups, hostGroupDefs, newBook, paintFor } from "./groups";
 import type { GroupBook } from "./groups";
 
 /** The UA sheet (origin ua) then `sources`, `Rule.order` chained across sheets. */
@@ -255,6 +255,7 @@ function cascade(run: Run, matched: readonly MatchedDeclaration[], parent: Compu
         const bcolor: Color = pick<Color>(`border-${s}-color`, ps.border[s].color, color, (v: ParsedValue) => colorOf(v, color));
         border[s] = { style, width: style === "none" ? 0 : width, color: bcolor };
     });
+    borderGroups(run.book, border, env);
     const weight: number = pick<number>("font-weight", ps.fontWeight, 400, (v: ParsedValue) =>
         v === "bolder" ? bolder(ps.fontWeight) : v === "lighter" ? lighter(ps.fontWeight) : Number(v),
     );

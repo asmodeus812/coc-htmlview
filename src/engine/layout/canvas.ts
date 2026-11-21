@@ -6,7 +6,7 @@
 import { codePointWidth, displayWidth } from "../../common";
 import type { Mark } from "../../types";
 import type { BorderSide, Color } from "../style";
-import { groupName } from "../style";
+import { borderColorGroup, groupName } from "../style";
 import { hostRoles } from "../style/host";
 import type { CellRange, MarkerBox, PlacedBox } from "./index";
 
@@ -122,10 +122,13 @@ export function mark(run: Run, line: number, startCol: number, endCol: number, g
     }
 }
 
-/** The highlight group a colour paints with (var → variable group, group → itself, literal → `fallback`). */
+/** A border colour's group (var → variable group, group → itself, literal → its own group, transparent → `fallback`). */
 function colorGroup(color: Color, fallback: string): string {
     let out: string;
-    if ("var" in color) {
+    const literal: string | undefined = borderColorGroup(color);
+    if (literal !== undefined) {
+        out = literal;
+    } else if ("var" in color) {
         out = groupName(color.var);
     } else if ("group" in color && color.group !== hostRoles.canvas.group) {
         out = color.group;

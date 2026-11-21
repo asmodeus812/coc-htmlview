@@ -107,9 +107,9 @@ Every colour of the built-in sheet and of the `--vscode-*` variables comes
 from a role group, `HtmlViewHost<Role>` (for example `HtmlViewHostLink`,
 `HtmlViewHostHeading1`, `HtmlViewHostCodeBlock`), linked by default to
 standard groups such as `@markup.link`, `Title` or `FloatBorder`. Override a
-role with `:hi` to restyle every view. The role table, the per-rule groups
-and how overrides survive a colorscheme change are in
-`:help coc-htmlview-highlights`.
+role with `:hi` to restyle every view. The role table, the per-rule groups,
+the `HtmlViewBorder<rrggbb>` groups of literal border colours and how
+overrides survive a colorscheme change are in `:help coc-htmlview-highlights`.
 
 ## Known limitations
 

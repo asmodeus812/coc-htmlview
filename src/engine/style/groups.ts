@@ -1,13 +1,14 @@
 /**
  * Highlight groups of the style part (private to style/): the host role and variable groups (`host.ts`), and
- * the rule groups `HtmlView<Pascal(selector)>` / `HtmlViewInline<hash>` that an element's `paint` lists.
+ * the rule groups `HtmlView<Pascal(selector)>` / `HtmlViewInline<hash>` that an element's `paint` lists, and
+ * the `HtmlViewBorder<rrggbb>` groups of literal border colours.
  * A rule group carries THAT RULE's visual declarations; an element paints with its matching rule groups in
  * cascade order (lowest first). Pure; the book is a per-run value, never module state.
  */
 import type { MatchedDeclaration } from "../css";
 import type { ColorRef, GroupDef } from "../../types";
-import type { Color, StyleEnv } from "./index";
-import { groupName } from "./index";
+import type { Borders, Color, StyleEnv } from "./index";
+import { borderColorGroup, groupName } from "./index";
 import { hostRoles } from "./host";
 import type { HostRole, HostRoleEntry } from "./host";
 import { expandDeclaration, parseValue } from "./properties";
@@ -164,4 +165,15 @@ export function paintFor(
         }
     }
     return names;
+}
+
+/** Registers the fg-only group of every drawn border side with a literal colour ({@link borderColorGroup}). */
+export function borderGroups(book: GroupBook, border: Borders, env: StyleEnv): void {
+    for (const side of [border.top, border.right, border.bottom, border.left]) {
+        const name: string | undefined = side.style !== "none" ? borderColorGroup(side.color) : undefined;
+        const fg: ColorRef | undefined = groupColor(side.color, env);
+        if (name !== undefined && fg !== undefined) {
+            register(book, "border|" + name, name, { fg });
+        }
+    }
 }

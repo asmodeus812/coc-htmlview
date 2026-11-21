@@ -335,6 +335,17 @@ group named from its selector: `.hljs-keyword` becomes `HtmlViewHljsKeyword`,
 `HtmlViewInline<hash>`. These are defined again on every refresh from the
 stylesheets, so change them in CSS, not with `:hi`.
 
+BORDER GROUPS
+
+A border drawn in a literal colour (`border: 1px solid #8FCAEA`, or
+`currentColor` resolving to one) gets a foreground-only group named from the
+colour, `HtmlViewBorder<rrggbb>` (`HtmlViewBorder8fcaea`), with
+`A<alpha x 1000>` appended when translucent (`rgba(250,220,121,.2)` becomes
+`HtmlViewBorderfadc79A200`, blended over the view's background). A border
+coloured by a variable paints with that variable's group; a transparent one
+with `HtmlViewHostBorder`. Like rule groups, these are redefined on every
+refresh.
+
 OVERRIDING
 
 Role and variable groups are defaults: a group you define wins (except

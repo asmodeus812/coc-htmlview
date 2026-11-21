@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
 import type { Color, StyledElement, StyledNode, StyledTree, StyleEnv } from "../../../src/engine/style/index";
-import type { ThemeKind } from "../../../src/types";
+import type { GroupDef, Mark, ThemeKind } from "../../../src/types";
+import { layoutBoxes } from "../../../src/engine/layout";
 import { defaultHostVars } from "../../../src/engine/style/host";
 import { computeStyles, parseSheets } from "../../../src/engine/style/index";
 import { parseDocument } from "../../../src/engine/dom";
@@ -191,4 +192,21 @@ test("engine/style: align-items normalises its keywords, is not inherited and st
     assert.equal(el(t, "c").style.alignItems, "start");
     assert.equal(el(t, "d").style.alignItems, "stretch");
     assert.equal(el(t, "e").style.alignItems, "normal", "invalid value is dropped");
+});
+
+test("engine/style: literal border colours get their own fg-only group, variables keep theirs", () => {
+    const html: string = '<div id="a">a</div><div id="b">b</div><div id="c">c</div><div id="d">d</div><div id="e">e</div>';
+    const css: string =
+        "#a{border:1px solid #8FCAEA} #b{color:#8FCAEA;border:1px solid} #c{border:1px solid rgba(250,220,121,.2)}" +
+        " #d{border:1px solid var(--vscode-textLink-foreground)} #e{border:1px solid transparent}";
+    const tree: StyledTree = render(html, css);
+    const groups: string[] = layoutBoxes(tree, { width: 20, tabstop: 4 }).marks.map((m: Mark): string => m.group);
+    const def = (name: string): GroupDef | undefined => tree.groups.find((g: GroupDef): boolean => g.name === name);
+    assert.deepEqual(def("HtmlViewBorder8fcaea"), { name: "HtmlViewBorder8fcaea", fg: { hex: "#8fcaea" } });
+    assert.deepEqual(def("HtmlViewBorderfadc79A200"), { name: "HtmlViewBorderfadc79A200", fg: { hex: "#fadc79", alpha: 0.2 } });
+    assert.equal(groups.filter((g: string): boolean => g === "HtmlViewBorder8fcaea").length, 8);
+    assert.equal(groups.filter((g: string): boolean => g === "HtmlViewBorderfadc79A200").length, 4);
+    assert.equal(groups.filter((g: string): boolean => g === "HtmlViewVscodeTextLinkForeground").length, 4);
+    assert.equal(groups.filter((g: string): boolean => g === "HtmlViewHostBorder").length, 4);
+    assert.equal(tree.groups.filter((g: GroupDef): boolean => g.name.startsWith("HtmlViewBorder")).length, 2);
 });
