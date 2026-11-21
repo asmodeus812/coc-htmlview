@@ -118,7 +118,8 @@ overrides survive a colorscheme change are in `:help coc-htmlview-highlights`.
   text.
 - `rowspan` is ignored in tables.
 - Flex is row only; `flex-wrap`, `gap` and `inline-flex` are not computed.
-- No fonts or font sizes: headings are colours and markers, weight 600 or
+- No fonts or font sizes: headings are colours and markers (an inherited
+  author `color` wins over the heading colour), weight 600 or
   more is bold.
 - Form controls other than radio and checkbox are not rendered; images show
   their `alt` text.

@@ -103,3 +103,11 @@ test("engine/layout: a block background tints its whole padding box, not only it
     assert.deepEqual(tint, [[0, 0, 15], [1, 0, 15], [2, 0, 15], [3, 0, 15]], "every line up to the right border, padding lines included");
     assert.equal(out.lines[5], "after", "lines outside the box keep their trailing spaces trimmed");
 });
+
+test("engine/layout: a heading inherits an author colour over its UA heading colour", () => {
+    const css = "header{color:#ffffff} header h1{margin:0}";
+    const out: Layout = lay("<header><h1>Title</h1></header><h1>Plain</h1>", css, 30);
+    const top: string[] = out.marks.filter((m) => m.line === 0).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0)).map((m) => m.group);
+    assert.ok(top[top.length - 1].startsWith("HtmlViewInline"), "the inherited colour paints over the heading group");
+    assert.ok(!out.marks.some((m) => m.line === 2 && m.group.startsWith("HtmlViewInline")), "a heading without an author colour keeps its role colour");
+});

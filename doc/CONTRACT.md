@@ -101,6 +101,8 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
 - A block with a background fills its padding box: every line from inside its top border to inside its bottom border
   is padded with spaces to inside its right border (kept from trailing-space trimming) and tinted from inside its left
   border. Other lines keep their trailing spaces trimmed.
+- Style: a heading's UA colour (`--htmlview-heading` with a UA `color`) yields to a colour inherited from a non-UA
+  declaration; the element then paints that colour with an fg-only `HtmlViewInline<hash>` group over its rule groups.
 - With `opts.virtual === false` (Vim) decorations are buffer text; link targets stay virtual text (the view drops
   them on Vim). Nothing a reader needs may exist only in virtual text when `virtual === false`.
 

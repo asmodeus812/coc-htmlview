@@ -229,7 +229,9 @@ Rules apply in this order, later ones winning at equal specificity:
 The user-agent sheet turns font sizes into colours and markers: headings get
 a colour and a marker (`◉`, `◆`, `▸`, `▹`, `‣`, `•` for `h1` to `h6`), tables
 and cells get borders, `pre` a code background, block quotes a bar, `hr` a
-horizontal rule, `mark` the search colour. List indents are 3 cells.
+horizontal rule, `mark` the search colour. List indents are 3 cells. A
+heading inside an element with an author `color` keeps that colour, as a
+browser shows it, instead of its heading colour.
 
 SUPPORTED CSS
 

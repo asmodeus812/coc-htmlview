@@ -36,7 +36,7 @@ import { blockify, displayOf, expandDeclaration, INHERITED, parseValue, SIDES } 
 import type { AlignItems } from "./index";
 import type { DecorationLine, DisplayValue, ParsedValue, Side } from "./properties";
 import { counterText, hasVar, markerText, resolveCustom, substitute, wideKeyword } from "./values";
-import { borderGroups, hostGroupDefs, newBook, paintFor } from "./groups";
+import { borderGroups, colorPaint, hostGroupDefs, newBook, paintFor } from "./groups";
 import type { GroupBook } from "./groups";
 
 /** The UA sheet (origin ua) then `sources`, `Rule.order` chained across sheets. */
@@ -154,6 +154,10 @@ const FLEX_OR_GRID: ReadonlySet<string> = new Set<string>(["flex", "inline-flex"
 interface Computed {
     style: ComputedStyle;
     raw: string;
+    /** The colour comes from a non-UA declaration, on this element or the ancestor it inherits it from. */
+    authorColor: boolean;
+    /** The UA colour declaration yielded to the inherited author colour, so the element paints that colour back. */
+    yielded: boolean;
 }
 
 function inheritedCustom(parent: ComputedStyle | undefined): Record<string, string> {
@@ -234,7 +238,14 @@ function cascade(run: Run, matched: readonly MatchedDeclaration[], parent: Compu
         const s: Source = src(lh);
         return s.kind === "parent" ? fromParent : s.kind === "initial" ? initial : typed(s.value);
     };
-    const color: Color = pick<Color>("color", ps.color, init.color, (v: ParsedValue) => (v === "currentcolor" ? ps.color : isColor(v) ? v : init.color));
+    // A heading's UA colour stands in for the font size a browser would draw it with, in the colour it inherits: it
+    // yields to an author colour the heading inherits (a white header's h1 stays white).
+    const colorDecl: MatchedDeclaration | undefined = matched.filter((m: MatchedDeclaration) => m.declaration.property === "color").pop();
+    const fromParent: boolean = src("color").kind === "parent";
+    const yields: boolean = parent !== undefined && parent.authorColor && colorDecl !== undefined && colorDecl.origin === "ua" && custom[LayoutHint.heading] !== undefined;
+    const authorColor: boolean = yields || (fromParent ? parent !== undefined && parent.authorColor : colorDecl !== undefined && colorDecl.origin !== "ua");
+    const ownColor: Color = pick<Color>("color", ps.color, init.color, (v: ParsedValue) => (v === "currentcolor" ? ps.color : isColor(v) ? v : init.color));
+    const color: Color = yields ? ps.color : ownColor;
     const colorOf = (v: ParsedValue, fallback: Color): Color => (v === "currentcolor" ? color : isColor(v) ? v : fallback);
     const disp: DisplayValue = pick<DisplayValue>("display", { raw: parent ? parent.raw : "inline", display: ps.display }, { raw: "inline", display: "inline" }, (v: ParsedValue) => v as DisplayValue);
     const raw: string = blockifyIt ? blockify(disp.raw) : disp.raw;
@@ -295,7 +306,7 @@ function cascade(run: Run, matched: readonly MatchedDeclaration[], parent: Compu
         counterSet: counters("counter-set", ps.counterSet),
         custom,
     };
-    return { style, raw };
+    return { style, raw, authorColor, yielded: yields };
 }
 
 /** Presentational counter hints: `start` on a list-item counter reset, `value` on a list item. */
@@ -336,9 +347,12 @@ function contentText(run: Run, items: readonly ContentItem[], el: DomElement, sc
     return out;
 }
 
-function paintOf(run: Run, matched: readonly MatchedDeclaration[], style: ComputedStyle): string[] {
+/** The paint groups; a yielded UA colour is painted over by a group of the inherited colour (rule groups merge by name). */
+function paintOf(run: Run, matched: readonly MatchedDeclaration[], style: ComputedStyle, yielded: boolean = false): string[] {
     const sub = (v: string): string | undefined => substitute(v, (n: string) => style.custom[n], run.env.vars);
-    return paintFor(run.book, matched, sub, run.env, style.fontWeight);
+    const names: string[] = paintFor(run.book, matched, sub, run.env, style.fontWeight);
+    const inherited: string | undefined = yielded ? colorPaint(run.book, style.color, run.env) : undefined;
+    return inherited !== undefined ? names.concat([inherited]) : names;
 }
 
 /** `::before` / `::after` (only with content) and `::marker` (list items; content or the list-style marker). */
@@ -362,7 +376,7 @@ function element(run: Run, el: DomElement, parent: Computed | undefined, scope: 
     const matched: MatchedDeclaration[] = matchRules(run.ctx, el);
     const blockifyIt: boolean = parent === undefined || FLEX_OR_GRID.has(parent.raw);
     const c0: Computed = cascade(run, matched, parent, blockifyIt);
-    const c: Computed = { style: counterHints(el, c0.style), raw: c0.raw };
+    const c: Computed = { style: counterHints(el, c0.style), raw: c0.raw, authorColor: c0.authorColor, yielded: c0.yielded };
     applyCounters(scope, c.style, owner, c.style.display === "list-item");
     const marker: StyledPseudo | undefined = pseudo(run, el, "marker", c, copyScope(scope));
     const inner: CounterScope = copyScope(scope);
@@ -371,7 +385,7 @@ function element(run: Run, el: DomElement, parent: Computed | undefined, scope: 
         child.type === "text" ? { kind: "text", text: child.text, id: child.id } : element(run, child, c, inner, el.id),
     );
     const after: StyledPseudo | undefined = pseudo(run, el, "after", c, inner);
-    const out: StyledElement = { kind: "element", element: el, style: c.style, paint: paintOf(run, matched, c.style), children };
+    const out: StyledElement = { kind: "element", element: el, style: c.style, paint: paintOf(run, matched, c.style, c.yielded), children };
     if (before !== undefined) {
         out.before = before;
     }

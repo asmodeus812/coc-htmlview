@@ -167,6 +167,16 @@ export function paintFor(
     return names;
 }
 
+/** The fg-only `HtmlViewInline<hash>` group of a computed colour (as an inline `color` would be); undefined when none. */
+export function colorPaint(book: GroupBook, color: Color, env: StyleEnv): string | undefined {
+    const fg: ColorRef | undefined = groupColor(color, env);
+    const name: string | undefined = fg !== undefined ? "HtmlViewInline" + fnv1a(JSON.stringify({ fg })) : undefined;
+    if (name !== undefined && fg !== undefined) {
+        register(book, name, name, { fg });
+    }
+    return name;
+}
+
 /** Registers the fg-only group of every drawn border side with a literal colour ({@link borderColorGroup}). */
 export function borderGroups(book: GroupBook, border: Borders, env: StyleEnv): void {
     for (const side of [border.top, border.right, border.bottom, border.left]) {
