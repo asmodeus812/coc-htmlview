@@ -240,13 +240,15 @@ SUPPORTED CSS
   `:not()`, `:first-child`, `:last-child`, `:only-child`, the `-of-type`
   forms, `:nth-child()` and its relatives, `::before`, `::after`, `::marker`.
   Other pseudo-classes such as `:hover` never match.
-• Properties: `color`, `background-color`, `display`, `visibility`, the
-  four `margin-*` and `padding-*`, `border-*-width`, `border-*-style`,
+• Properties: `color`, `background-color`, `display`, `visibility`, the four
+  `margin-*` and `padding-*`, `border-*-width`, `border-*-style`,
   `border-*-color`, `font-weight`, `font-style`, `text-decoration-line`,
   `text-decoration-color`, `white-space`, `tab-size`, `text-align`,
   `text-transform`, `list-style-type`, `list-style-position`, `content`,
   `counter-reset`, `counter-increment`, `counter-set`, `flex-direction`,
-  `align-items`, `order` and `width`. Shorthands: `margin`, `padding`,
+  `align-items`, `order` and `width` (only `width: 100%` counts: it stretches
+  a table's columns to the full width and gives a flex item a row of its own;
+  other tables shrink to fit their content). Shorthands: `margin`, `padding`,
   `border`, `border-width`, `border-style`, `border-color`, `border-top` (and
   `-right`, `-bottom`, `-left`), `margin-block`, `margin-inline`,
   `padding-block`, `padding-inline`, `background` (sets the colour only),

@@ -81,8 +81,21 @@ function spanWidth(widths: readonly number[], c: GridCell): number {
     return widths.slice(c.col, c.col + c.span).reduce((a: number, b: number): number => a + b, 0) + (c.span - 1);
 }
 
-/** Column widths (cell padding included) that fit `avail`, or undefined. */
-function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: number, depth: number): number[] | undefined {
+/** `widths` grown to `avail`, the spare cells shared in proportion to each column's width (a `width: 100%` table). */
+function growColumns(widths: number[], avail: number): number[] {
+    const sum: number = widths.reduce((a: number, b: number): number => a + b, 0);
+    const spare: number = Math.max(0, avail - sum);
+    const grown: number[] = widths.map((w: number): number => w + Math.floor((spare * w) / Math.max(1, sum)));
+    let left: number = avail - grown.reduce((a: number, b: number): number => a + b, 0);
+    for (let i = 0; left > 0 && grown.length > 0; i = (i + 1) % grown.length) {
+        grown[i] += 1;
+        left -= 1;
+    }
+    return grown;
+}
+
+/** Column widths (cell padding included) that fit `avail`, or undefined; `fill` stretches them to `avail`. */
+function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: number, depth: number, fill: boolean): number[] | undefined {
     const mins: number[] = new Array<number>(grid.ncols).fill(1);
     const maxs: number[] = new Array<number>(grid.ncols).fill(1);
     const measured: Array<{ c: GridCell; min: number; max: number }> = [];
@@ -119,6 +132,9 @@ function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: n
                 }
             });
         widths = fixed.reduce((a: number, b: number): number => a + b, 0) <= avail ? fixed : undefined;
+    }
+    if (widths !== undefined && fill) {
+        widths = growColumns(widths, avail);
     }
     return widths;
 }
@@ -272,7 +288,7 @@ export function placeTable(run: Run, table: TableBox, x: number, w: number, dept
     let rows: PlacedBox[] = [];
     let total: number = w;
     if (grid.rows.length > 0) {
-        const widths: number[] | undefined = avail > 0 ? fitColumns(run, grid, avail, kids) : undefined;
+        const widths: number[] | undefined = avail > 0 ? fitColumns(run, grid, avail, kids, table.style.fill) : undefined;
         if (widths !== undefined) {
             total = widths.reduce((a: number, b: number): number => a + b, 0) + (grid.ncols - 1) + 2 * outer;
             rows = placeGrid(run, table, grid, widths, x, kids, side);

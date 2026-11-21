@@ -117,3 +117,15 @@ test("engine/layout: a long img alt text wraps like inline text inside its brack
     assert.deepEqual(out.lines, ["[Bar chart of", "startup time per", "plugin]"]);
     assert.deepEqual(lay("<p>a <img alt='b c'> d</p>", "", 20).lines, ["a [b c] d"]);
 });
+
+test("engine/layout: a width: 100% table stretches its columns to the available width, others shrink to fit", () => {
+    const html = "<table><tr><td>name</td><td>a longer value</td></tr></table>";
+    const css = "td{border:1px solid}";
+    const narrow: Layout = lay(html, css, 60);
+    const wide: Layout = lay(html, css + " table{width:100%}", 60);
+    const cells = (out: Layout): number => [...(out.lines.find((l: string) => l.startsWith("┌")) ?? "")].length;
+    assert.ok(cells(narrow) < 30, narrow.lines.join("\n"));
+    assert.equal(cells(wide), 60, wide.lines.join("\n"));
+    const parts: number[] = (wide.lines.find((l: string) => l.startsWith("┌")) ?? "").slice(1, -1).split("┬").map((p: string) => [...p].length);
+    assert.ok(parts[1] > parts[0], `the longer column gets more of the spare width: ${parts.join(",")}`);
+});

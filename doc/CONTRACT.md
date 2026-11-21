@@ -96,7 +96,8 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
 - Flex (`display: flex`, row only): the container is a block; each item takes its shrink-to-fit width (max-content
   capped at the content width), items sit side by side 1 cell apart (0 when their margins separate them) and wrap
   greedily onto a new row when the next does not fit. Items go in `order` (ties: document order); an item with
-  `width: 100%` (`ComputedStyle.fill`) takes a row of its own. Item margins do not collapse. Atomic inlines
+  `width: 100%` (`ComputedStyle.fill`) takes a row of its own; on a table it stretches the columns to the full width,
+  the spare cells shared in proportion to each column's width. Item margins do not collapse. Atomic inlines
   (inline-block) shrink to fit the same way.
 - A block with a background fills its padding box: every line from inside its top border to inside its bottom border
   is padded with spaces to inside its right border (kept from trailing-space trimming) and tinted from inside its left
