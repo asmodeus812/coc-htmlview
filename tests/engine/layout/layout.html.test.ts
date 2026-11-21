@@ -94,3 +94,12 @@ test("engine/layout: a wide spanning cell spreads its extra width over the spann
     assert.equal(widths.length, 3, top);
     assert.ok(Math.max(...widths) - Math.min(...widths) <= 1, `even columns: ${top}`);
 });
+
+test("engine/layout: a block background tints its whole padding box, not only its text", () => {
+    const css = "header{background:#2b5f8a;padding:1em 2ch;border-right:1px solid #fff} header p{margin:0}";
+    const out: Layout = lay("<header><p>Title</p><p>a b</p></header><p>after</p>", css, 16);
+    assert.deepEqual(out.lines, ["               │", "  Title        │", "  a b          │", "               │", "", "after"]);
+    const tint = out.marks.filter((m) => m.group === "HtmlViewHeader").map((m) => [m.line, m.startCol, m.endCol]);
+    assert.deepEqual(tint, [[0, 0, 15], [1, 0, 15], [2, 0, 15], [3, 0, 15]], "every line up to the right border, padding lines included");
+    assert.equal(out.lines[5], "after", "lines outside the box keep their trailing spaces trimmed");
+});

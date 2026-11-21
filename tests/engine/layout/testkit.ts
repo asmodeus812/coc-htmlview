@@ -81,11 +81,13 @@ export const I: Partial<ComputedStyle> = { display: "inline" };
 export function violations(out: Layout): string[] {
     const errs: string[] = [];
     const inCode = (line: number): boolean => out.codeRegions.some((r) => line >= r.startLine && line <= r.endLine);
+    // A background block pads its lines to its right edge: trailing spaces are kept only under a mark reaching the end.
+    const tinted = (line: number, width: number): boolean => out.marks.some((m) => m.line === line && m.endCol >= width && m.startCol < width);
     out.lines.forEach((line: string, i: number): void => {
         if (/[\t\n]/.test(line)) {
             errs.push("tab/newline on line " + i);
         }
-        if (/ $/.test(line) && !inCode(i)) {
+        if (/ $/.test(line) && !inCode(i) && !tinted(i, displayWidth(line))) {
             errs.push("trailing space on line " + i + ": " + JSON.stringify(line));
         }
     });

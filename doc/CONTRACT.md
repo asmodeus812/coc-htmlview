@@ -98,6 +98,9 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
   greedily onto a new row when the next does not fit. Items go in `order` (ties: document order); an item with
   `width: 100%` (`ComputedStyle.fill`) takes a row of its own. Item margins do not collapse. Atomic inlines
   (inline-block) shrink to fit the same way.
+- A block with a background fills its padding box: every line from inside its top border to inside its bottom border
+  is padded with spaces to inside its right border (kept from trailing-space trimming) and tinted from inside its left
+  border. Other lines keep their trailing spaces trimmed.
 - With `opts.virtual === false` (Vim) decorations are buffer text; link targets stay virtual text (the view drops
   them on Vim). Nothing a reader needs may exist only in virtual text when `virtual === false`.
 
@@ -123,7 +126,6 @@ data constants (`hostRoles`, `defaultHostVars`, `LayoutHint`) and the naming and
 ## Known limitations
 
 - `::before` / `::after` content on a block is not rewrapped with the block's text.
-- Backgrounds of non-code elements are clipped to their text, not painted over the full box.
 - `rowspan` is ignored in tables.
 - Flex is row only: `flex-wrap`, `gap` and `inline-flex` are not computed, so `nowrap` wraps too and an inline-flex
   container shrinks only as a flex item or an atomic inline.

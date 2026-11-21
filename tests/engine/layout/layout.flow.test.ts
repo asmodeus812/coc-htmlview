@@ -177,9 +177,9 @@ test("engine/layout: background block marks cover the box, invariants hold on a 
     const k: Kit = kit();
     const banner = k.el("div", { display: "block", padding: edges(0, 1), backgroundColor: { hex: "#ff0000", alpha: 1 } }, ["warn ", k.el("code", { display: "inline", padding: edges(0, 1) }, ["x"], { paint: ["Code"] })], { paint: ["Banner"] });
     const out: Layout = layOut(docRoot(k, [banner, k.el("p", { display: "block", textAlign: "center" }, ["mid"])]), k, { width: 11 });
-    assert.deepEqual(out.lines, [" warn  x", "    mid"]);
-    assert.ok(out.marks.some((m) => m.group === "Banner" && m.startCol === 0 && m.endCol === 8));
-    assert.ok(out.marks.some((m) => m.group === "Code" && m.startCol === 6 && m.endCol === 8));
+    assert.deepEqual(out.lines, [" warn  x   ", "    mid"], "the background block's line reaches its right edge");
+    assert.ok(out.marks.some((m) => m.group === "Banner" && m.startCol === 0 && m.endCol === 11));
+    assert.ok(out.marks.some((m) => m.group === "Code" && m.startCol === 6 && m.endCol === 9), "the inline padding is tinted too now the line reaches the box edge");
 });
 
 test("engine/layout: table cells wrap within fitted columns, tall body rows are ruled apart, CJK breaks between wide characters", () => {

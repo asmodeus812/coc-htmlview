@@ -236,13 +236,15 @@ export function placeBlock(run: Run, box: BlockBox | ListItemBox, x: number, w: 
 function finishBlock(run: Run, box: BlockBox | ListItemBox, top: number, bottom: number, x: number, w: number, cx: number, depth: number): void {
     const s: ComputedStyle = box.style;
     const bg: boolean = !("hex" in s.backgroundColor) || s.backgroundColor.alpha > 0;
-    const code: boolean = s.custom["--htmlview-code"] === "block";
     ensureLine(run, bottom);
-    if (code && bg) {
-        const ct: number = top + (s.border.top.width > 0 ? 1 : 0) + Math.max(0, s.padding.top);
-        const cb: number = bottom - (s.border.bottom.width > 0 ? 1 : 0) - Math.max(0, s.padding.bottom);
-        const right: number = x + w - (s.border.right.width > 0 ? 1 : 0);
-        for (let line = ct; line <= cb; line++) {
+    // A background fills the padding box: a solid border covers it in a browser, so border cells stay untinted.
+    const first: number = bg ? top + (s.border.top.width > 0 ? 1 : 0) : top;
+    const last: number = bg ? bottom - (s.border.bottom.width > 0 ? 1 : 0) : bottom;
+    const left: number = x + (s.border.left.width > 0 ? 1 : 0);
+    const right: number = x + w - (s.border.right.width > 0 ? 1 : 0);
+    if (bg) {
+        // Every line of the padding box, blank padding lines included, reaches the right edge so the tint can.
+        for (let line = first; line <= last; line++) {
             if (lineWidth(run, line) < right) {
                 put(run, line, right, "");
                 run.keep.add(line);
@@ -250,11 +252,6 @@ function finishBlock(run: Run, box: BlockBox | ListItemBox, top: number, bottom:
         }
     }
     if (box.paint.length > 0) {
-        // A background fills the padding box: a solid border covers it in a browser, so border cells stay untinted.
-        const first: number = bg ? top + (s.border.top.width > 0 ? 1 : 0) : top;
-        const last: number = bg ? bottom - (s.border.bottom.width > 0 ? 1 : 0) : bottom;
-        const left: number = x + (s.border.left.width > 0 ? 1 : 0);
-        const right: number = x + w - (s.border.right.width > 0 ? 1 : 0);
         for (let line = first; line <= last; line++) {
             const end: number = bg ? Math.min(lineWidth(run, line), right) : lineWidth(run, line);
             paintRange(run, box.paint, depth, { line, startCol: bg ? left : Math.min(cx, x + w), endCol: end });

@@ -254,6 +254,9 @@ SUPPORTED CSS
   are ignored.
 • `var()` with fallbacks; colours as hex, `rgb()`, `hsl()`, names and
   `transparent`. Colours with alpha are blended over the background.
+  A block's background fills its padding box up to its right edge, inside
+  its borders, blank padding lines included; an inline element's covers
+  its text and padding.
 • `@media` blocks apply when their query is `screen` or `all`; other
   at-rules are skipped.
 
@@ -478,7 +481,6 @@ The keys are the same.
 
 • `::before`/`::after` content on a block is not rewrapped with the block's
   text.
-• Backgrounds of non-code elements cover their text, not the full box.
 • `rowspan` is ignored in tables.
 • Flex is row only: `flex-wrap`, `gap` and `inline-flex` are not computed,
   so `nowrap` wraps too. `align-items` places a shorter item at the top

@@ -116,7 +116,6 @@ overrides survive a colorscheme change are in `:help coc-htmlview-highlights`.
 
 - `::before`/`::after` content on a block is not rewrapped with the block's
   text.
-- Backgrounds of non-code elements cover their text only, not the full box.
 - `rowspan` is ignored in tables.
 - Flex is row only; `flex-wrap`, `gap` and `inline-flex` are not computed.
 - No fonts or font sizes: headings are colours and markers, weight 600 or
