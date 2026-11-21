@@ -91,7 +91,12 @@ function walk(ictx: InlineCtx, boxes: readonly Box[], depth: number, out: Span[]
             inlineEdges(flow, Math.max(0, box.style.margin.left));
             span.start = flow.pos;
             if (box.replacedText !== undefined) {
-                flow.atomic(box.replacedText === "" ? "" : `${ictx.run.opts.image}[${box.replacedText}]`);
+                if (box.replacedText !== "") {
+                    // the marker and its bracket stay together; the alt text between them wraps like any inline text
+                    flow.atomic(`${ictx.run.opts.image}[`);
+                    flow.text(box.replacedText, box.style.whiteSpace, ictx.run.opts.tabstop);
+                    flow.atomic("]");
+                }
             } else {
                 const frag: Fragment = atomicFragment(box, ictx, childDepth(box, depth));
                 const starts: number[] = [];

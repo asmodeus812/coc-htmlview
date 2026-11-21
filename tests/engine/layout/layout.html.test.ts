@@ -111,3 +111,9 @@ test("engine/layout: a heading inherits an author colour over its UA heading col
     assert.ok(top[top.length - 1].startsWith("HtmlViewInline"), "the inherited colour paints over the heading group");
     assert.ok(!out.marks.some((m) => m.line === 2 && m.group.startsWith("HtmlViewInline")), "a heading without an author colour keeps its role colour");
 });
+
+test("engine/layout: a long img alt text wraps like inline text inside its brackets", () => {
+    const out = lay("<p><img src='x.png' alt='Bar chart of startup time per plugin'></p>", "", 16);
+    assert.deepEqual(out.lines, ["[Bar chart of", "startup time per", "plugin]"]);
+    assert.deepEqual(lay("<p>a <img alt='b c'> d</p>", "", 20).lines, ["a [b c] d"]);
+});
