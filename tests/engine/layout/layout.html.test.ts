@@ -71,7 +71,7 @@ test("engine/layout: counter-set restarts a counter in ::before content", () => 
 
 test("engine/layout: a colspan cell spans the columns of the next row", () => {
     const out: Layout = lay("<table><tr><td colspan=2>wide</td></tr><tr><td>a</td><td>b</td></tr></table>", "td{border:1px solid}", 30);
-    assert.deepEqual(out.lines, ["┌───────┐", "│ wide  │", "│ a │ b │", "└───┴───┘"]);
+    assert.deepEqual(out.lines, ["┌───────┐", "│ wide  │", "├───┬───┤", "│ a │ b │", "└───┴───┘"]);
 });
 
 test("engine/layout: flex items without order (0) come before positive orders", () => {
@@ -128,4 +128,11 @@ test("engine/layout: a width: 100% table stretches its columns to the available 
     assert.equal(cells(wide), 60, wide.lines.join("\n"));
     const parts: number[] = (wide.lines.find((l: string) => l.startsWith("┌")) ?? "").slice(1, -1).split("┬").map((p: string) => [...p].length);
     assert.ok(parts[1] > parts[0], `the longer column gets more of the spare width: ${parts.join(",")}`);
+});
+
+test("engine/layout: a line separates rows where a spanning cell starts and before the footer", () => {
+    const span: Layout = lay("<table><tr><td>a</td><td>b</td><td>c</td></tr><tr><td colspan=2>wide</td><td>d</td></tr></table>", "", 40);
+    assert.ok(span.lines.some((l: string) => l.includes("┴") && l.startsWith("├")), span.lines.join("\n"));
+    const foot: Layout = lay("<table><tbody><tr><td>a</td><td>b</td></tr></tbody><tfoot><tr><td>t</td><td>u</td></tr></tfoot></table>", "", 40);
+    assert.equal(foot.lines.filter((l: string) => l.startsWith("├")).length, 1, foot.lines.join("\n"));
 });

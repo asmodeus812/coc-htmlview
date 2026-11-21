@@ -43,8 +43,7 @@ function buildGrid(table: TableBox): { rows: GridRow[]; ncols: number } {
     return { rows, ncols: Math.max(1, ncols) };
 }
 
-/** The cell as a block (borders are the grid's, margins do not apply to cells). */
-/** The cell as a block; `measure` lays it out left-aligned, so its widths are its content, not its alignment offset. */
+/** The cell as a block (borders are the grid's, margins do not apply); `measure` lays it out left-aligned, so its widths are its content, not its alignment offset. */
 function cellBlock(cell: TableCellBox, measure: boolean): BlockBox {
     const none: BorderSide = { style: "none", width: 0, color: cell.style.color };
     const textAlign: ComputedStyle["textAlign"] = measure ? "left" : cell.style.textAlign;
@@ -139,6 +138,10 @@ function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: n
     return widths;
 }
 
+function sameEdges(a: Set<number>, b: Set<number>): boolean {
+    return a.size === b.size && [...a].every((e: number): boolean => b.has(e));
+}
+
 /** Column indexes (1..ncols-1) where a cell of `row` starts. */
 function edges(row: GridRow | undefined, ncols: number): Set<number> {
     const out: Set<number> = new Set();
@@ -214,7 +217,11 @@ function placeGrid(run: Run, table: TableBox, grid: { rows: GridRow[]; ncols: nu
     const placedRows: PlacedBox[] = [];
     grid.rows.forEach((r: GridRow, i: number): void => {
         const prev: GridRow | undefined = i > 0 ? grid.rows[i - 1] : undefined;
-        if (outer > 0 && prev !== undefined && (prev.header !== r.header || (tall && !r.header))) {
+        // a line where the header ends, between wrapped rows, where the row group changes (body → footer) and where the
+        // column structure changes (a spanning cell starts or ends), so the junctions read like a browser's cell borders
+        const regroup: boolean = prev !== undefined && prev.row.group !== r.row.group;
+        const restructure: boolean = prev !== undefined && !sameEdges(edges(prev, grid.ncols), edges(r, grid.ncols));
+        if (outer > 0 && prev !== undefined && (prev.header !== r.header || (tall && !r.header) || regroup || restructure)) {
             rule(run, y, x, borderLine(widths, prev, r, g), group, depth);
             y += 1;
         }
