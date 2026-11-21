@@ -149,9 +149,14 @@ the |coc-htmlview-api-view| once the view shows the first content.
                   with the same name. Default `false`.
                 • `title`?: title of the float's window bar and of the split's
                   status line. Default: `name`.
-`stylesheets`?  CSS file paths in cascade order. Use absolute paths. They
-                come after the user's `htmlview.stylesheets`. An unreadable
-                path is skipped. Files are re-read when they change.
+`stylesheets`?  CSS file paths in cascade order. They come after the
+                user's `htmlview.stylesheets`. `~` and environment
+                variables are expanded; relative paths resolve against
+                `root`. An unreadable path is skipped. Files are re-read
+                when they change.
+`root`?         The folder relative `stylesheets` resolve against,
+                usually your extension's `context.extensionPath`.
+                Default: coc-htmlview's own folder.
 `prepass`?      A function from HTML string to HTML string, run before the
                 document is parsed. Use it to fix up markup.
 `lang`?         Language of code blocks that name none, see
@@ -168,7 +173,8 @@ Plain HTML: >ts
 With stylesheets, reused, in a float: >ts
 
     await api.render(html, {
-        stylesheets: ["/path/to/base.css", "/path/to/theme.css"],
+        root: context.extensionPath,
+        stylesheets: ["styles/base.css", "/path/to/theme.css"],
         view: { name: "myext://doc", mode: "float", reuse: true,
                 title: "Documentation" }
     });
@@ -208,7 +214,13 @@ Rules apply in this order, later ones winning at equal specificity:
 
 1. The built-in user-agent sheet: browser defaults adapted to a terminal.
 2. The user's `htmlview.stylesheets`, in order: a base for every view.
-3. The `stylesheets` given to `render()`, in order.
+   The user settings come first, then the workspace settings; relative
+   paths resolve against the folder of the settings file that sets them
+   (your coc config folder, the workspace root). Defaults declared by
+   other extensions are ignored: an extension styles its own views
+   through `render()`.
+3. The `stylesheets` given to `render()`, in order, relative paths
+   against its `root`.
 4. The document's `<style>` blocks.
 5. `style=""` attributes.
 
@@ -500,8 +512,8 @@ A stylesheet has no effect ~
 An unreadable path is skipped with the message
 `htmlview: cannot read stylesheet '…', skipped`, written with `console.error`
 to the stderr of coc's node process: coc echoes it as an error message and
-keeps it for |:CocPrintErrors|. Relative paths in `render()` resolve against
-the working directory of that node process, the directory Neovim was in when
-coc started (a later `:cd` does not change it), so use absolute paths.
+keeps it for |:CocPrintErrors|. Check where a relative path resolves: a
+`render()` path against its `root` (coc-htmlview's own folder when none is
+given), a setting against the folder of its settings file.
 
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

@@ -36,8 +36,13 @@ export interface ViewSpec {
 
 /** Options of {@link HtmlViewApi.render}. */
 export interface RenderOptions {
-    /** Stylesheet file paths in cascade order, applied after the `htmlview.stylesheets` setting so they win. Unreadable paths are skipped. */
+    /**
+     * Stylesheet file paths in cascade order, applied after the user's `htmlview.stylesheets` so they win. `~` and
+     * environment variables are expanded; relative paths resolve against {@link root}. Unreadable paths are skipped.
+     */
     stylesheets?: string[];
+    /** The folder relative `stylesheets` resolve against, usually the caller's `context.extensionPath`; default coc-htmlview's own folder. */
+    root?: string;
     /** An HTML to HTML pass run before parsing. */
     prepass?: HtmlPrepass;
     /** Language name for code blocks that name none. */

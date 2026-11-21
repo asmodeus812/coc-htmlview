@@ -72,7 +72,8 @@ const ext = extensions.getExtensionById("coc-htmlview");
 const api = ext?.exports as HtmlViewApi | undefined;
 if (api !== undefined && api.version === 1) {
     const view = await api.render("<h1>Hello</h1><p>From <b>HTML</b>.</p>", {
-        stylesheets: ["/abs/path/to/my.css"],
+        root: context.extensionPath, // relative stylesheets resolve here
+        stylesheets: ["styles/my.css"],
         view: { name: "myext://hello", reuse: true }
     });
     await view.closed;
@@ -89,7 +90,7 @@ API, with every option, is in `:help coc-htmlview-api`.
 |---|---|---|---|
 | `htmlview.view.mode` | `"float"` \| `"split"` | `"float"` | Where views open when the calling extension does not choose: a centred float (Neovim only; Vim always splits) or a window split. |
 | `htmlview.view.splitCommand` | string | `"botright vsplit"` | Ex command that creates the split, e.g. `topleft split`, `tab split`. A value that is not a split command falls back to the default with one warning. |
-| `htmlview.stylesheets` | string[] | `[]` | CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded; relative paths resolve against the workspace root. |
+| `htmlview.stylesheets` | string[] | `[]` | CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded. Relative paths resolve against the folder of the settings file that sets them: your coc config folder for the user settings, the workspace root for the workspace settings; both lists apply, user first. Defaults declared by other extensions are ignored. |
 | `htmlview.linkTargets` | boolean | `false` | Show each link's target as virtual text after the link (`` 🔗 <href>``). Off by default, as in a browser; links stay highlighted and `<CR>`/`gx` open them either way. |
 
 Example `coc-settings.json`:

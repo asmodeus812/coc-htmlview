@@ -41,7 +41,8 @@ lays out. The view owns the only nvim state; every other part is pure data in, d
 
 ```ts
 api.render(html: string, options: {
-    stylesheets?: string[];      // file paths, cascade order, after ua.css and htmlview.stylesheets
+    stylesheets?: string[];      // file paths, cascade order, after ua.css and htmlview.stylesheets; relative against root
+    root?: string;               // default: coc-htmlview's own folder
     prepass?: (html: string) => string;
     lang?: string;               // language of code blocks that name none
     languages?: LanguageOptions; // extends/overrides the generic language table
@@ -51,7 +52,9 @@ api.render(html: string, options: {
 
 - Document `<style>` blocks and `style=""` attributes are part of the HTML and always applied. All `stylesheets` cascade
   at author origin; their order sets precedence. `sheets.ts` caches the parsed sheets by path + mtime (an edited file is
-  re-read on the next render); an unreadable path is skipped with one `console.error` line.
+  re-read on the next render); an unreadable path is skipped with one `console.error` line. `htmlview.stylesheets`
+  comes from the user level (relative to coc's config folder) then the workspace level (relative to the workspace
+  root); the default level, where other extensions' manifests land, is not read.
 - Theme: detected from 'background', refreshed on ColorScheme / background changes. Initial tab and context: the
   HTML's `checked` attributes. Link targets: hidden unless `htmlview.linkTargets`, then ` 🔗 <href>` virtual text. List markers and prefixes: CSS only.
 - `tab-size` (CSS, inherited) sets the tab width of code; unset, it is Neovim's 'tabstop' read at render (default 4).

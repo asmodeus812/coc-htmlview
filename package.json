@@ -64,7 +64,7 @@
           },
           "default": [],
           "scope": "application",
-          "markdownDescription": "CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded; relative paths resolve against the workspace root."
+          "markdownDescription": "CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded. Relative paths resolve against the folder of the settings file that sets them: your coc config folder for the user settings, the workspace root for the workspace settings; both lists apply, user first. Defaults declared by other extensions are ignored."
         },
         "htmlview.linkTargets": {
           "type": "boolean",
