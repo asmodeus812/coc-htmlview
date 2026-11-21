@@ -25,6 +25,9 @@ test("engine/style: UA sheet is bundled and host table carries the user decision
     assert.match(UA_SHEET, /--htmlview-code/);
     assert.equal(hostRoles.border.links[0], "FloatBorder");
     assert.equal(hostRoles.linkUrl.links[0], "@markup.link.url");
+    // @markup.raw is Comment-grey by default (Neovim, habamax): code is painted from a readable accent instead
+    assert.deepEqual(hostRoles.inlineCode.links, ["Special", "String"]);
+    assert.deepEqual(hostRoles.kbd.links, ["Special"]);
     assert.equal(defaultHostVars["--vscode-textLink-foreground"].role, "linkUrl");
 });
 

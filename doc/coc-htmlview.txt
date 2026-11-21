@@ -289,8 +289,8 @@ group of its chain that your colorscheme defines:
     Group                          Default link chain ~
     HtmlViewHostCanvas             NormalFloat in a float, else Normal
     HtmlViewHostCodeBlock          HtmlViewHostCanvas
-    HtmlViewHostInlineCode         @markup.raw, Special, String
-    HtmlViewHostKbd                @markup.raw, Special
+    HtmlViewHostInlineCode         Special, String
+    HtmlViewHostKbd                Special
     HtmlViewHostHeading1 to 6      @markup.heading.1 (to .6),
                                    @markup.heading, Title
     HtmlViewHostLink               @markup.link, Underlined

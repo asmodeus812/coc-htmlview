@@ -74,8 +74,8 @@ function role(name: string, links: string[], fgOnly: boolean = false): HostRoleE
 export const hostRoles: Readonly<Record<HostRole, HostRoleEntry>> = Object.freeze({
     canvas: role("canvas", ["Normal"]),
     codeBlock: role("codeBlock", ["HtmlViewHostCanvas"]),
-    inlineCode: role("inlineCode", ["@markup.raw", "Special", "String"]),
-    kbd: role("kbd", ["@markup.raw", "Special"]),
+    inlineCode: role("inlineCode", ["Special", "String"]),
+    kbd: role("kbd", ["Special"]),
     heading1: role("heading1", ["@markup.heading.1", "@markup.heading", "Title"]),
     heading2: role("heading2", ["@markup.heading.2", "@markup.heading", "Title"]),
     heading3: role("heading3", ["@markup.heading.3", "@markup.heading", "Title"]),
