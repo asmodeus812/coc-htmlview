@@ -77,3 +77,20 @@ test("engine/layout: a colspan cell spans the columns of the next row", () => {
 test("engine/layout: flex items without order (0) come before positive orders", () => {
     assert.deepEqual(lay("<div style='display:flex'><span style='order:2'>B</span><span style='order:1'>A</span><span>Z</span></div>", "", 30).lines, ["Z A B"]);
 });
+
+test("engine/layout: right-aligned cells size to their content, not to the available width", () => {
+    const html = "<table><tr><th>Scenario</th><th>v2.3</th></tr><tr><td>Cold build</td><td class=n>12.4 s</td></tr></table>";
+    const out: Layout = lay(html, "td.n{text-align:right}", 60);
+    assert.ok(out.lines.some((l: string) => l.includes("Cold build")), "the first column does not wrap");
+    assert.ok(out.lines.every((l: string) => [...l].length <= 25), out.lines.join("\n"));
+    assert.ok(out.lines.some((l: string) => /│\s+12\.4 s\s?│/.test(l) || / 12\.4 s/.test(l)), "still right-aligned in its column");
+});
+
+test("engine/layout: a wide spanning cell spreads its extra width over the spanned columns", () => {
+    const html = "<table><tr><td>a</td><td>b</td><td>c</td></tr><tr><td colspan=3>a much longer spanning cell</td></tr></table>";
+    const out: Layout = lay(html, "td{border:1px solid}", 60);
+    const top: string = out.lines.find((l: string) => l.startsWith("┌")) ?? "";
+    const widths: number[] = top.slice(1, -1).split("┬").map((s: string) => [...s].length);
+    assert.equal(widths.length, 3, top);
+    assert.ok(Math.max(...widths) - Math.min(...widths) <= 1, `even columns: ${top}`);
+});

@@ -44,14 +44,16 @@ function buildGrid(table: TableBox): { rows: GridRow[]; ncols: number } {
 }
 
 /** The cell as a block (borders are the grid's, margins do not apply to cells). */
-function cellBlock(cell: TableCellBox): BlockBox {
+/** The cell as a block; `measure` lays it out left-aligned, so its widths are its content, not its alignment offset. */
+function cellBlock(cell: TableCellBox, measure: boolean): BlockBox {
     const none: BorderSide = { style: "none", width: 0, color: cell.style.color };
-    const style: ComputedStyle = { ...cell.style, display: "block", margin: NO_EDGES, border: { top: none, right: none, bottom: none, left: none } };
+    const textAlign: ComputedStyle["textAlign"] = measure ? "left" : cell.style.textAlign;
+    const style: ComputedStyle = { ...cell.style, display: "block", textAlign, margin: NO_EDGES, border: { top: none, right: none, bottom: none, left: none } };
     return { kind: "block", element: cell.element, style, paint: cell.paint, children: cell.children };
 }
 
-function cellFragment(run: Run, cell: TableCellBox, width: number, depth: number, split: boolean): Fragment {
-    return fragment({ ...run.opts, split }, [cellBlock(cell)], Math.max(1, width), depth);
+function cellFragment(run: Run, cell: TableCellBox, width: number, depth: number, split: boolean, measure: boolean = false): Fragment {
+    return fragment({ ...run.opts, split }, [cellBlock(cell, measure)], Math.max(1, width), depth);
 }
 
 function distribute(mins: number[], maxs: number[], avail: number): number[] {
@@ -87,8 +89,8 @@ function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: n
     grid.rows.forEach((r: GridRow): void => {
         r.cells.forEach((c: GridCell): void => {
             const pr: number = Math.max(0, c.cell.style.padding.right);
-            const min: number = fragmentWidth(cellFragment(run, c.cell, 1, depth, false)) + pr;
-            const max: number = Math.max(min, fragmentWidth(cellFragment(run, c.cell, Math.max(1, avail), depth, true)) + pr);
+            const min: number = fragmentWidth(cellFragment(run, c.cell, 1, depth, false, true)) + pr;
+            const max: number = Math.max(min, fragmentWidth(cellFragment(run, c.cell, Math.max(1, avail), depth, true, true)) + pr);
             measured.push({ c, min, max });
             if (c.span === 1) {
                 mins[c.col] = Math.max(mins[c.col], min);
@@ -109,9 +111,11 @@ function fitColumns(run: Run, grid: { rows: GridRow[]; ncols: number }, avail: n
         measured
             .filter((m: { c: GridCell }): boolean => m.c.span > 1)
             .forEach((m: { c: GridCell; min: number; max: number }): void => {
+                // a spanning cell wider than its columns spreads the difference over them, as browsers do
                 const missing: number = Math.min(m.max, avail) - spanWidth(fixed, m.c);
-                if (missing > 0) {
-                    fixed[Math.min(grid.ncols, m.c.col + m.c.span) - 1] += missing;
+                const cols: number = Math.min(grid.ncols, m.c.col + m.c.span) - m.c.col;
+                for (let k = 0; k < missing; k++) {
+                    fixed[m.c.col + (k % cols)] += 1;
                 }
             });
         widths = fixed.reduce((a: number, b: number): number => a + b, 0) <= avail ? fixed : undefined;
