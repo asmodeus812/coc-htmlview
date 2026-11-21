@@ -36,7 +36,7 @@ extensions that use it.
 2. Installation                                         *coc-htmlview-install*
 
 Requires Neovim 0.10 or newer and coc.nvim. Neovim 0.9 is the floor: it has
-no inline virtual text, so link targets appear at the end of the line and
+no inline virtual text, so shown link targets go to the end of the line and
 other inline decorations overlay the text. Vim works with a reduced view,
 see |coc-htmlview-vim|. Install from GitHub (coc builds it): >vim
 
@@ -80,8 +80,14 @@ REFRESH
 
 The view lays itself out again when its window width changes, and restyles
 when you run |:colorscheme| or change 'background'. The cursor stays on its
-line. Link targets appear after each link as virtual text, ` 🔗 ` followed by
-the URL.
+line.
+
+LINK TARGETS
+
+Links are highlighted but their targets are hidden, as in a browser. With
+the `htmlview.linkTargets` setting on, each link's target appears after it
+as virtual text, ` 🔗 ` followed by the URL. `<CR>` and `gx` open links
+either way.
 
 ==============================================================================
 4. Keys                                                    *coc-htmlview-keys*

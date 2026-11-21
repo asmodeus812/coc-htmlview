@@ -126,11 +126,11 @@ test("engine/layout: a row of capsules sits inline and wraps (the demo's taxonom
     ]);
 });
 
-test("engine/layout: links per line with the target as inline virtual text, counted when wrapping", () => {
+test("engine/layout: links per line, the shown target as inline virtual text counted when wrapping, hidden by default", () => {
     const k: Kit = kit();
     const [ls, lo] = LINK("https://x.io");
     const [as, ao] = LINK("#sec");
-    const out: Layout = layOut(docRoot(k, [k.el("p", B, ["see ", k.el("a", ls, ["the docs"], lo), " or ", k.el("a", as, ["here"], ao)])]), k, { width: 20 });
+    const out: Layout = layOut(docRoot(k, [k.el("p", B, ["see ", k.el("a", ls, ["the docs"], lo), " or ", k.el("a", as, ["here"], ao)])]), k, { width: 20, linkTarget: { show: true, symbol: "🔗" } });
     assert.deepEqual(out.lines, ["see the", "docs", "or here"]);
     assert.deepEqual(out.links, [
         { line: 0, startCol: 4, endCol: 7, target: { kind: "url", href: "https://x.io" } },
@@ -138,7 +138,7 @@ test("engine/layout: links per line with the target as inline virtual text, coun
         { line: 2, startCol: 3, endCol: 7, target: { kind: "anchor", id: "sec" } },
     ]);
     assert.deepEqual(out.virtText, [{ line: 1, col: 4, pos: "inline", chunks: [{ text: " 🔗 https://x.io", groups: ["HtmlViewHostLinkUrl"] }], role: "link-target" }]);
-    const hidden: Layout = layOut(docRoot(k, [k.el("p", B, ["see ", k.el("a", ls, ["the docs"], lo)])]), k, { width: 20, linkTarget: { show: false, symbol: "" } });
+    const hidden: Layout = layOut(docRoot(k, [k.el("p", B, ["see ", k.el("a", ls, ["the docs"], lo)])]), k, { width: 20 });
     assert.deepEqual([hidden.lines, hidden.virtText], [["see the docs"], []]);
 });
 

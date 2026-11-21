@@ -22,7 +22,8 @@ editor instead of a browser.
   tabs you switch with a key.
 - Code blocks highlighted with treesitter when a parser is installed, else
   with highlight.js.
-- Link targets shown as virtual text next to the link.
+- Link targets optionally shown as virtual text next to the link
+  (`htmlview.linkTargets`).
 - Colours follow the colorscheme and refresh on `:colorscheme` and
   `:set background`.
 - VS Code webview compatibility: the `vscode-light`/`vscode-dark` body class
@@ -31,7 +32,8 @@ editor instead of a browser.
 ## Requirements
 
 - Neovim 0.10 or newer and coc.nvim. Neovim 0.9 is the floor: it lacks
-  inline virtual text, so link targets move to the end of the line.
+  inline virtual text, so link targets (when shown) move to the end of the
+  line.
 - Vim works with a reduced view: always a split, no virtual text, no
   treesitter, no refresh on resize or colorscheme change.
 
@@ -88,6 +90,7 @@ API, with every option, is in `:help coc-htmlview-api`.
 | `htmlview.view.mode` | `"float"` \| `"split"` | `"float"` | Where views open when the calling extension does not choose: a centred float (Neovim only; Vim always splits) or a window split. |
 | `htmlview.view.splitCommand` | string | `"botright vsplit"` | Ex command that creates the split, e.g. `topleft split`, `tab split`. A value that is not a split command falls back to the default with one warning. |
 | `htmlview.stylesheets` | string[] | `[]` | Extra CSS files applied to every view after the calling extension's stylesheets, so their rules win. `~` and environment variables are expanded; relative paths resolve against the workspace root. |
+| `htmlview.linkTargets` | boolean | `false` | Show each link's target as virtual text after the link (`` 🔗 <href>``). Off by default, as in a browser; links stay highlighted and `<CR>`/`gx` open them either way. |
 
 Example `coc-settings.json`:
 

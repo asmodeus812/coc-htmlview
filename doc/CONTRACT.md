@@ -53,7 +53,7 @@ api.render(html: string, options: {
   at author origin; their order sets precedence. `sheets.ts` caches the parsed sheets by path + mtime (an edited file is
   re-read on the next render); an unreadable path is skipped with one `console.error` line.
 - Theme: detected from 'background', refreshed on ColorScheme / background changes. Initial tab and context: the
-  HTML's `checked` attributes. Link targets: always shown, as ` 🔗 `. List markers and prefixes: CSS only.
+  HTML's `checked` attributes. Link targets: hidden unless `htmlview.linkTargets`, then ` 🔗 <href>` virtual text. List markers and prefixes: CSS only.
 - `tab-size` (CSS, inherited) sets the tab width of code; unset, it is Neovim's 'tabstop' read at render (default 4).
 - Removed options: `nvim`, `sheets`, `userSheets`, `sheetCache`, `vars`, `themeKind`, `selected`, `tabstop`,
   `linkTarget`, `icons`.

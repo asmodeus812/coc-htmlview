@@ -27,6 +27,8 @@ export interface RenderOptions {
      * name (`""` = no highlighting), an object gives the engine ids (`{treesitter, hljs}`) directly.
      */
     languages?: LanguageOptions;
+    /** Show each link's target as virtual text after it (` 🔗 <href>`); default false. */
+    linkTargets?: boolean;
     /** Window and buffer: where and under which name the view opens. */
     view: { mode: "split" | "float"; name: string; reuse?: boolean; splitCommand?: string; title?: string };
 }
@@ -117,6 +119,7 @@ export async function renderOn(nvim: Neovim, html: string, options: RenderOption
                 width: req.width,
                 tabstop,
                 defaultLang: options.lang,
+                linkTarget: { show: options.linkTargets === true, symbol: engine.layout.DEFAULT_LINK_TARGET.symbol },
                 virtual: req.virtual
             });
             result = { layout: laid, groups: current.groups, selected: engine.interact.toSelection(form) };

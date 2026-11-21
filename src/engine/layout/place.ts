@@ -13,6 +13,7 @@ import { borderGroup, clipMarks, ensureLine, flush, glyphs, lineWidth, mark, new
 import { placeFlex } from "./flex";
 import { paintPriority } from "./index";
 import type { BlockBox, Box, CellRange, LayoutOptions, ListItemBox, MarkerBox, PlacedBox, PlacedTree, TableBox, TableRowBox } from "./index";
+import { DEFAULT_LINK_TARGET } from "./index";
 import { placeInline } from "./inline";
 import { placeTable } from "./table";
 
@@ -20,7 +21,7 @@ const DEFAULT_BULLETS: readonly string[] = ["•", "◦", "▪"];
 
 /** Resolves the options. */
 export function resolveOpts(opts: LayoutOptions): Opts {
-    const target: { show: boolean; symbol: string } = opts.linkTarget ?? { show: true, symbol: "🔗" };
+    const target: { show: boolean; symbol: string } = opts.linkTarget ?? DEFAULT_LINK_TARGET;
     return {
         width: Math.max(1, Math.floor(opts.width)),
         tabstop: Math.max(1, opts.tabstop),

@@ -40,16 +40,18 @@ export interface Settings {
     mode: "split" | "float";
     splitCommand: string;
     stylesheets: string[];
+    linkTargets: boolean;
 }
 
 let warned = false;
 
-/** Reads `htmlview.view.mode`, `htmlview.view.splitCommand` and `htmlview.stylesheets` (expanded, absolute). */
+/** Reads `htmlview.view.mode`, `htmlview.view.splitCommand`, `htmlview.stylesheets` (expanded, absolute) and `htmlview.linkTargets`. */
 export function readSettings(coc: typeof Coc): Settings {
     const config = coc.workspace.getConfiguration("htmlview");
     const rawMode: string = config.get<string>("view.mode", "float");
     const rawSplit: string = config.get<string>("view.splitCommand", DEFAULT_SPLIT_COMMAND);
     const rawSheets: unknown = config.get<unknown>("stylesheets", []);
+    const rawTargets: unknown = config.get<unknown>("linkTargets", false);
     let splitCommand: string = rawSplit;
     if (!isSplitCommand(rawSplit)) {
         splitCommand = DEFAULT_SPLIT_COMMAND;
@@ -61,5 +63,5 @@ export function readSettings(coc: typeof Coc): Settings {
     const sheets: string[] = (Array.isArray(rawSheets) ? rawSheets : [])
         .filter((f: unknown): f is string => typeof f === "string" && f !== "")
         .map((f: string): string => resolveSheetPath(coc.workspace.expand(f), coc.workspace.root));
-    return { mode: rawMode === "split" ? "split" : "float", splitCommand, stylesheets: sheets };
+    return { mode: rawMode === "split" ? "split" : "float", splitCommand, stylesheets: sheets, linkTargets: rawTargets === true };
 }

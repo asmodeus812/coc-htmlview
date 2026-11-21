@@ -14,6 +14,7 @@ async function render(html: string, options: RenderOptions): Promise<View> {
     return renderOn(coc.workspace.nvim, html, {
         ...options,
         stylesheets: [...(options.stylesheets ?? []), ...s.stylesheets],
+        linkTargets: s.linkTargets,
         view: { ...options.view, mode: options.view.mode ?? s.mode, splitCommand: options.view.splitCommand ?? s.splitCommand }
     });
 }

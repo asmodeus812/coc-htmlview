@@ -157,7 +157,7 @@ export interface LayoutOptions {
     icons?: IconSet;
     /** Language name for code without its own (as in a code block's class or data-lang). */
     defaultLang?: string;
-    /** Link target virtual text: default `{ show: true, symbol: "🔗" }` (configurable later by the user). */
+    /** Link target virtual text: default {@link DEFAULT_LINK_TARGET} (hidden; htmlview shows it per `htmlview.linkTargets`). */
     linkTarget?: { show: boolean; symbol: string };
     /**
      * Whether layout may move decorations out of buffer text into virtual text (markers, borders, link targets).
@@ -219,8 +219,8 @@ export interface VirtualOutput {
     conceals: Conceal[];
 }
 
-/** Default link-target options (user-configurable later). */
-export const DEFAULT_LINK_TARGET: Readonly<{ show: boolean; symbol: string }> = Object.freeze({ show: true, symbol: "🔗" });
+/** Default link-target options: hidden, as a browser shows no link targets. */
+export const DEFAULT_LINK_TARGET: Readonly<{ show: boolean; symbol: string }> = Object.freeze({ show: false, symbol: "🔗" });
 
 /**
  * The inline virtual text after a url link: ` <symbol> <href>`, attached at the link's end cell, painted with the
