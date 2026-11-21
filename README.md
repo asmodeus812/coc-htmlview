@@ -11,8 +11,8 @@ editor instead of a browser.
 
 ## Features
 
-- A real CSS cascade: a built-in user-agent sheet, the caller's
-  stylesheets, the document's `<style>` blocks and `style=""` attributes,
+- A real CSS cascade: a built-in user-agent sheet, your stylesheets, the
+  caller's stylesheets, the document's `<style>` blocks and `style=""` attributes,
   with specificity and `!important`.
 - Computed style: inheritance, `var()` with fallbacks, shorthands,
   `::before`/`::after`/`::marker` content and counters.
@@ -89,7 +89,7 @@ API, with every option, is in `:help coc-htmlview-api`.
 |---|---|---|---|
 | `htmlview.view.mode` | `"float"` \| `"split"` | `"float"` | Where views open when the calling extension does not choose: a centred float (Neovim only; Vim always splits) or a window split. |
 | `htmlview.view.splitCommand` | string | `"botright vsplit"` | Ex command that creates the split, e.g. `topleft split`, `tab split`. A value that is not a split command falls back to the default with one warning. |
-| `htmlview.stylesheets` | string[] | `[]` | Extra CSS files applied to every view after the calling extension's stylesheets, so their rules win. `~` and environment variables are expanded; relative paths resolve against the workspace root. |
+| `htmlview.stylesheets` | string[] | `[]` | CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded; relative paths resolve against the workspace root. |
 | `htmlview.linkTargets` | boolean | `false` | Show each link's target as virtual text after the link (`` 🔗 <href>``). Off by default, as in a browser; links stay highlighted and `<CR>`/`gx` open them either way. |
 
 Example `coc-settings.json`:

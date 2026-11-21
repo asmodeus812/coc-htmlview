@@ -4,6 +4,8 @@
  */
 import * as path from "path";
 import type * as Coc from "coc.nvim";
+import type { RenderOptions as ApiRenderOptions } from "./api";
+import type { RenderOptions } from "./render";
 
 export const DEFAULT_SPLIT_COMMAND = "botright vsplit";
 
@@ -64,4 +66,17 @@ export function readSettings(coc: typeof Coc): Settings {
         .filter((f: unknown): f is string => typeof f === "string" && f !== "")
         .map((f: string): string => resolveSheetPath(coc.workspace.expand(f), coc.workspace.root));
     return { mode: rawMode === "split" ? "split" : "float", splitCommand, stylesheets: sheets, linkTargets: rawTargets === true };
+}
+
+/**
+ * The pipeline options of a `render()` call under the settings: mode and split command default to the settings, the
+ * user's stylesheets come first (a base the caller's sheets override) and link targets follow the setting.
+ */
+export function applySettings(options: ApiRenderOptions, s: Settings): RenderOptions {
+    return {
+        ...options,
+        stylesheets: [...s.stylesheets, ...(options.stylesheets ?? [])],
+        linkTargets: s.linkTargets,
+        view: { ...options.view, mode: options.view.mode ?? s.mode, splitCommand: options.view.splitCommand ?? s.splitCommand }
+    };
 }

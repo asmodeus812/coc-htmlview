@@ -64,7 +64,7 @@
           },
           "default": [],
           "scope": "application",
-          "markdownDescription": "Extra CSS files applied to every view after the calling extension's stylesheets, so their rules win. `~` and environment variables are expanded; relative paths resolve against the workspace root."
+          "markdownDescription": "CSS files applied to every view as your base, before the calling extension's stylesheets, so the extension's rules win over them. `~` and environment variables are expanded; relative paths resolve against the workspace root."
         },
         "htmlview.linkTargets": {
           "type": "boolean",

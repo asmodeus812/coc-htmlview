@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import * as path from "path";
 import type * as Coc from "coc.nvim";
-import { DEFAULT_SPLIT_COMMAND, isSplitCommand, readSettings, resolveSheetPath } from "../src/settings";
+import { DEFAULT_SPLIT_COMMAND, applySettings, isSplitCommand, readSettings, resolveSheetPath } from "../src/settings";
 
 test("isSplitCommand accepts split-like commands", () => {
     for (const c of ["botright vsplit", "topleft split", "tab split", "vertical 80split", "vert new", "aboveleft 30 sp", "belowright vnew", "to vs", "split", "tab vert bo vsplit", "  botright vsplit "]) {
@@ -56,4 +56,14 @@ test("readSettings falls back from a bad split command with one warning", () => 
     assert.equal(warnings.length, 1);
     assert.match(warnings[0], /'edit foo' is not a split command/);
     assert.equal(readSettings(fakeCoc({ "view.splitCommand": "topleft split" }, warnings)).splitCommand, "topleft split");
+});
+
+test("applySettings puts the user's stylesheets before the caller's and defaults the view", () => {
+    const s = { mode: "split" as const, splitCommand: "tab split", stylesheets: ["/u.css"], linkTargets: true };
+    assert.deepEqual(applySettings({ stylesheets: ["/caller.css"], lang: "java", view: { name: "n", mode: "float" } }, s), {
+        stylesheets: ["/u.css", "/caller.css"],
+        lang: "java",
+        linkTargets: true,
+        view: { name: "n", mode: "float", splitCommand: "tab split" }
+    });
 });

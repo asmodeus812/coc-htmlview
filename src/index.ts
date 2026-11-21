@@ -5,18 +5,12 @@
 import type { ExtensionContext } from "coc.nvim";
 import type { HtmlViewApi, RenderOptions, View } from "./api";
 import { renderOn } from "./render";
-import { readSettings } from "./settings";
+import { applySettings, readSettings } from "./settings";
 
-/** Renders `html` with the caller's options, defaulting mode and split command and appending the user's stylesheets. */
+/** Renders `html` with the caller's options under the user's settings ({@link applySettings}). */
 async function render(html: string, options: RenderOptions): Promise<View> {
     const coc: typeof import("coc.nvim") = require("coc.nvim");
-    const s = readSettings(coc);
-    return renderOn(coc.workspace.nvim, html, {
-        ...options,
-        stylesheets: [...(options.stylesheets ?? []), ...s.stylesheets],
-        linkTargets: s.linkTargets,
-        view: { ...options.view, mode: options.view.mode ?? s.mode, splitCommand: options.view.splitCommand ?? s.splitCommand }
-    });
+    return renderOn(coc.workspace.nvim, html, applySettings(options, readSettings(coc)));
 }
 
 export function activate(_context: ExtensionContext): HtmlViewApi {

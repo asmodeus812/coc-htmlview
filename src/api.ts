@@ -36,7 +36,7 @@ export interface ViewSpec {
 
 /** Options of {@link HtmlViewApi.render}. */
 export interface RenderOptions {
-    /** Stylesheet file paths in cascade order; the `htmlview.stylesheets` setting is appended after these. Unreadable paths are skipped. */
+    /** Stylesheet file paths in cascade order, applied after the `htmlview.stylesheets` setting so they win. Unreadable paths are skipped. */
     stylesheets?: string[];
     /** An HTML to HTML pass run before parsing. */
     prepass?: HtmlPrepass;

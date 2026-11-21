@@ -41,7 +41,7 @@ lays out. The view owns the only nvim state; every other part is pure data in, d
 
 ```ts
 api.render(html: string, options: {
-    stylesheets?: string[];      // file paths, cascade order, on top of ua.css (first); htmlview.stylesheets come after
+    stylesheets?: string[];      // file paths, cascade order, after ua.css and htmlview.stylesheets
     prepass?: (html: string) => string;
     lang?: string;               // language of code blocks that name none
     languages?: LanguageOptions; // extends/overrides the generic language table

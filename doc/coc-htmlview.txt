@@ -148,8 +148,8 @@ the |coc-htmlview-api-view| once the view shows the first content.
                   with the same name. Default `false`.
                 • `title`?: title of the float's window bar and of the split's
                   status line. Default: `name`.
-`stylesheets`?  CSS file paths in cascade order. Use absolute paths. The
-                user's `htmlview.stylesheets` come after them. An unreadable
+`stylesheets`?  CSS file paths in cascade order. Use absolute paths. They
+                come after the user's `htmlview.stylesheets`. An unreadable
                 path is skipped. Files are re-read when they change.
 `prepass`?      A function from HTML string to HTML string, run before the
                 document is parsed. Use it to fix up markup.
@@ -206,8 +206,8 @@ THE VIEW                                               *coc-htmlview-api-view*
 Rules apply in this order, later ones winning at equal specificity:
 
 1. The built-in user-agent sheet: browser defaults adapted to a terminal.
-2. The `stylesheets` given to `render()`, in order.
-3. The user's `htmlview.stylesheets`, in order.
+2. The user's `htmlview.stylesheets`, in order: a base for every view.
+3. The `stylesheets` given to `render()`, in order.
 4. The document's `<style>` blocks.
 5. `style=""` attributes.
 
