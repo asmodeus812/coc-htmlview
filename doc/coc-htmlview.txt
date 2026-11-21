@@ -71,7 +71,8 @@ Each view has a buffer name chosen by the calling extension, for example
 `myext://hello`. When the extension asks for reuse, a new view with the same
 name replaces the content of the earlier buffer and jumps to its window if
 one shows it. Without reuse, each view gets a new buffer; a name that is
-already taken gets a numbered suffix such as `myext://hello [2]`.
+already taken gets the view's unique token as suffix, such as
+`myext://hello [mhxk2a1f-4k9d2l1x]` (the same in Vim and Neovim).
 
 Closing a reused view (with `q` or `close()`) hides its windows and keeps the
 buffer; closing any other view that way wipes its buffer.

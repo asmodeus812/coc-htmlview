@@ -238,6 +238,17 @@ test("view/lua: an fg-only role takes the chain's colour without its background"
     assert.deepEqual(res?.hl, { fg: 0xaabbcc });
 });
 
+test("view/lua: a taken buffer name gets the view token as suffix", { skip: !HAS_NVIM }, () => {
+    const res = runViewLua<{ first: string; second: string }>([
+        "local a = M.open({ name = 'x://v', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', token = 'tok-a', keys = {} })",
+        "local b = M.open({ name = 'x://v', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', token = 'tok-b', keys = {} })",
+        "res.first = vim.api.nvim_buf_get_name(a.bufnr)",
+        "res.second = vim.api.nvim_buf_get_name(b.bufnr)",
+    ]);
+    assert.ok(res !== undefined && res.first.endsWith("x://v"), res?.first);
+    assert.ok(res !== undefined && res.second.endsWith("x://v [tok-b]"), res?.second);
+});
+
 test("view/lua: setting 'background' is watched like ColorScheme", { skip: !HAS_NVIM }, () => {
     const res = runViewLua<{ count: number }>([
         "local o = M.open({ name = 'x', reuse = false, mode = 'split', splitCommand = 'vsplit', title = 't', token = 'a', keys = {} })",

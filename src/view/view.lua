@@ -30,12 +30,11 @@ local function find_buf(name)
     return found
 end
 
-local function unique_name(name)
+-- A taken name gets the view's token as suffix, the same as the Vim backend.
+local function unique_name(name, token)
     local candidate = name
-    local n = 1
-    while find_buf(candidate) ~= -1 do
-        n = n + 1
-        candidate = name .. ' [' .. n .. ']'
+    if find_buf(name) ~= -1 then
+        candidate = name .. ' [' .. token .. ']'
     end
     return candidate
 end
@@ -205,7 +204,7 @@ function M.open(o)
         end
     else
         buf = api.nvim_create_buf(false, true)
-        api.nvim_buf_set_name(buf, unique_name(o.name))
+        api.nvim_buf_set_name(buf, unique_name(o.name, o.token))
     end
     set_buf_opts(buf)
     vim.b[buf].htmlview_reuse = o.reuse
