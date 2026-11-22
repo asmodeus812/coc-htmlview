@@ -27,6 +27,7 @@
     "lib",
     "doc/coc-htmlview.txt",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.txt",
     "README.md"
   ],
   "scripts": {
