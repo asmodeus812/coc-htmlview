@@ -1,6 +1,6 @@
 {
   "name": "coc-htmlview",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Browser-style HTML and CSS rendering into Neovim buffers for coc.nvim extensions",
   "author": "Svetlozar Iliev",
   "publisher": "asmodeus812",
